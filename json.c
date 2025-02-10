@@ -5,7 +5,6 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "string.h"
 
@@ -14,11 +13,11 @@ typedef struct {
   uintptr_t pos;
 } parse_integer_result;
 
-parse_integer_result parse_integer(Arena *a, Str src, uintptr_t pos) {
+parse_integer_result parse_integer(Arena *a, char *src, uintptr_t pos) {
   int *ints = new (a, int, 16); // TODO: reuse in parsing
   int i = 0;
-  while (isdigit(src.data[pos + i])) {
-    int val = (src.data[pos + i] - '0');
+  while (isdigit(src[pos + i])) {
+    int val = (src[pos + i] - '0');
     ints[i] = val;
     i++;
   }
@@ -30,9 +29,9 @@ parse_integer_result parse_integer(Arena *a, Str src, uintptr_t pos) {
   return (parse_integer_result){result, pos + i};
 }
 
-uintptr_t absorb_whitespaces(Str src, uintptr_t pos) {
+uintptr_t absorb_whitespaces(char *src, uintptr_t pos) {
   int i = 0;
-  while (isspace(src.data[pos + i])) {
+  while (isspace(src[pos + i])) {
     i++;
   }
   return pos + i;
@@ -43,9 +42,9 @@ typedef struct {
   uintptr_t pos;
 } parse_array_result;
 
-parse_array_result parse_array(Arena *a, Str src, uintptr_t start_pos) {
-  printf("json.parse_array: parsing array %s\n", src.data + start_pos);
-  assert(src.data[start_pos] == '[');
+parse_array_result parse_array(Arena *a, char *src, uintptr_t start_pos) {
+  printf("json.parse_array: parsing array %s\n", src + start_pos);
+  assert(src[start_pos] == '[');
   uintptr_t pos = start_pos + 1;
   Vec *items = Vec_new(a, JSON, 0);
   for (;;) {
@@ -55,13 +54,13 @@ parse_array_result parse_array(Arena *a, Str src, uintptr_t start_pos) {
     items = Vec_push(a, items, &result.value);
     pos = result.pos;
     pos = absorb_whitespaces(src, pos);
-    if (src.data[pos] == ',') {
+    if (src[pos] == ',') {
       pos++;
     } else {
       break;
     }
   };
-  assert(src.data[pos] == ']');
+  assert(src[pos] == ']');
 
   return (parse_array_result){items, pos + 1};
 }
@@ -71,36 +70,35 @@ typedef struct {
   uintptr_t pos;
 } parse_string_result;
 
-parse_string_result parse_string(Arena *a, Str src, uintptr_t pos) {
-  printf("json.parse_string: %s\n", src.data + pos);
-  assert(src.data[pos] == '"');
+parse_string_result parse_string(Arena *a, char *src, uintptr_t pos) {
+  printf("json.parse_string: %s\n", src + pos);
+  assert(src[pos] == '"');
   int i = 1;
 
-  while (src.data[pos + i] != '"' && src.data[pos + i - 1] != '\\') {
+  while (src[pos + i] != '"' && src[pos + i - 1] != '\\') {
     i++;
-    assert(i + pos <= src.len);
   }
-  assert(src.data[pos + i]);
-  Str s = Str_copy(a, &src.data[pos + 1], i - 1);
+  assert(src[pos + i]);
+  Str s = Str_copy(a, &src[pos + 1], i - 1);
 
   return (parse_string_result){s, pos + i};
 }
 
-JSON JSON_parse(Arena *a, Str src) {
+JSON JSON_parse(Arena *a, char *src) {
   JSON json = {0};
   int pos = 0;
-  printf("json.parse: src=%s\n", src.data);
-  if (isdigit(src.data[pos])) {
+  printf("json.parse: src=%s\n", src);
+  if (isdigit(src[pos])) {
     parse_integer_result result = parse_integer(a, src, 0);
     json.integer = &result.value;
     pos = result.pos;
   }
-  if (src.data[pos] == '[') {
+  if (src[pos] == '[') {
     parse_array_result result = parse_array(a, src, pos);
     json.array = result.items;
     pos = result.pos;
   }
-  if (src.data[pos] == '"') {
+  if (src[pos] == '"') {
     parse_string_result result = parse_string(a, src, pos);
     json.string = &result.string;
     pos = result.pos;
