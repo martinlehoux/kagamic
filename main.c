@@ -22,7 +22,10 @@ typedef struct {
 
 int main() {
   Arena perm = Arena_new(128e3);
+  // Testing string
   assert(Str_equals(S("Bonjour"), S("Bonjour")));
+  Str s = S("Hello");
+  assert(Str_equals(s, Str_copy(&perm, s.data, s.len)));
   // Testing JSON
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
   JSON json_int = JSON_parse(&perm, S("123"));
@@ -39,9 +42,8 @@ int main() {
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
   assert(*Vec_get(JSON_parse(&perm, S("[1, 2, 3]")).array, int, 1) == 2);
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
-  Str a = S("\"abc\"");
-  JSON s = JSON_parse(&perm, S("\"abc\""));
-  // printf("%s (%d)\n", s.string->data, s.string->len);
-  // assert(Str_equals(*JSON_parse(&perm, S("\"abc\"")).string, S("abc")) == 1);
+  JSON js = JSON_parse(&perm, S("\"abc\""));
+  assert(Str_equals(*js.string, S("abc")) == 1);
+  printf("Arena: mem=%d B\n", Arena_get_used(perm));
   return 0;
 }

@@ -72,7 +72,7 @@ typedef struct {
 } parse_string_result;
 
 parse_string_result parse_string(Arena *a, Str src, uintptr_t pos) {
-  printf("json.parse_string: %s", src.data + pos);
+  printf("json.parse_string: %s\n", src.data + pos);
   assert(src.data[pos] == '"');
   int i = 1;
 
@@ -81,18 +81,15 @@ parse_string_result parse_string(Arena *a, Str src, uintptr_t pos) {
     assert(i + pos <= src.len);
   }
   assert(src.data[pos + i]);
-  char *s;
-  memcpy(s, src.data + pos + 1, i - 1);
+  Str s = Str_copy(a, &src.data[pos + 1], i - 1);
 
-  printf("%s", s);
-
-  return (parse_string_result){Str_copy(a, src.data + pos + 1, i - 1), pos + i};
+  return (parse_string_result){s, pos + i};
 }
 
 JSON JSON_parse(Arena *a, Str src) {
   JSON json = {0};
   int pos = 0;
-  // printf("json.parse: src=%s", src.data);
+  printf("json.parse: src=%s\n", src.data);
   if (isdigit(src.data[pos])) {
     parse_integer_result result = parse_integer(a, src, 0);
     json.integer = &result.value;

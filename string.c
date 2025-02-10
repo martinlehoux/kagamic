@@ -25,7 +25,7 @@ uint64_t Str_hash64(Str s) {
 }
 
 Str Str_copy(Arena *a, char *data, uintptr_t len) {
-  Str str = {0};
+  Str str = {0,len};
   str.data = new (a, char, len);
   if (str.len)
     memcpy(str.data, data, len);
