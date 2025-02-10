@@ -28,9 +28,11 @@ int main() {
   assert(Str_equals(s, Str_copy(&perm, s.data, s.len)));
   // Testing JSON
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
+  assert(Arena_get_used(perm) == 5);
   JSON json_int = JSON_parse(&perm, "123");
   assert(*json_int.integer == 123);
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
+  assert(Arena_get_used(perm) == 72);
   JSON json_int_array = JSON_parse(&perm, "[1,2,3]");
   assert(json_int_array.integer == NULL);
   assert(json_int_array.array->len == 3);
@@ -40,10 +42,13 @@ int main() {
   }
   assert(sum == 6);
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
+  assert(Arena_get_used(perm) == 304);
   assert(*Vec_get(JSON_parse(&perm, "[1, 2, 3]").array, int, 1) == 2);
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
+  assert(Arena_get_used(perm) == 536);
   JSON js = JSON_parse(&perm, "\"abc\"");
   assert(Str_equals(*js.string, S("abc")) == 1);
   printf("Arena: mem=%d B\n", Arena_get_used(perm));
+  assert(Arena_get_used(perm) == 539);
   return 0;
 }
