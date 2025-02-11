@@ -14,7 +14,7 @@ typedef struct {
 } parse_integer_result;
 
 parse_integer_result parse_integer(Arena *a, char *src, uintptr_t pos) {
-  int *ints = new (a, int, 16); // TODO: reuse in parsing
+  char ints[16];
   int i = 0;
   while (isdigit(src[pos + i])) {
     int val = (src[pos + i] - '0');

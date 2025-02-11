@@ -1,3 +1,5 @@
 # Kagamic
 
 ## TODO
+
+- Testing setup
