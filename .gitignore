@@ -1,6 +1,4 @@
 main
 
-cmake_install.cmake
-Makefile
-CMakeFiles/
-CMakeCache.txt
+Debug/
+Release/

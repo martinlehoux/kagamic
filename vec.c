@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <string.h>
 
 #include "vec.h"
@@ -14,9 +13,6 @@ Vec *_Vec_new(Arena *a, int size, ptrdiff_t cap, int align) {
 }
 
 Vec *Vec_push(Arena *a, Vec *v, void *data) {
-  // printf("push: dest=%p, src=%p, size=%d\n", v->data + v->len * v->size,
-  // data,
-  //        v->size);
   if (v->len == v->cap) {
     void *cpy = alloc(a, v->cap * 2, v->size, v->align);
     memcpy(cpy, v->data, v->len * v->size);
