@@ -31,7 +31,6 @@ parse_integer_result parse_integer(Arena *a, char *src, uintptr_t pos) {
   for (int j = 0; j < i; j++) {
     *result += ints[j] * pow(10, (i - j - 1));
   }
-  printf("json.parse_integer: parsed int=%d at pos=%lu\n", *result, pos);
   return (parse_integer_result){result, pos + i};
 }
 
@@ -49,7 +48,6 @@ typedef struct {
 } parse_array_result;
 
 parse_array_result parse_array(Arena *a, char *src, uintptr_t pos) {
-  printf("json.parse_array: parsing array %s\n", src + pos);
   assert(src[pos] == '[');
   pos++;
   Vec items = Vec_new(a, JSON, 2);
@@ -76,7 +74,6 @@ typedef struct {
 } parse_string_result;
 
 parse_string_result parse_string(Arena *a, char *src, uintptr_t pos) {
-  printf("json.parse_string: %s\n", src + pos);
   assert(src[pos] == '"');
   int i = 1;
 

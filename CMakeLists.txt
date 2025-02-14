@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 project(kagamic VERSION 0.1 LANGUAGES C)
 set(CMAKE_C_STANDARD 17)
+
 add_executable(main
     main.c
     string.h string.c
@@ -11,3 +12,16 @@ add_executable(main
 )
 target_link_libraries(main m)
 target_compile_options(main PRIVATE -Wall -pedantic -Wextra)
+
+
+add_executable(test
+    test.c
+    testing.h
+    string.h string.c
+    memory.h memory.c
+    vec.h vec.c
+    json.h json.c
+    log.h log.c
+)
+target_link_libraries(test m)
+target_compile_options(test PRIVATE -Wall -pedantic -Wextra)

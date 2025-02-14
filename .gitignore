@@ -2,3 +2,5 @@ main
 
 Debug/
 Release/
+
+test.c

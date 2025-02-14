@@ -24,8 +24,4 @@ void Vec_push(Arena *a, Vec *v, void *data) {
   v->len++;
 }
 
-void *_Vec_get(Vec *v, int pos) {
-  // printf("get: length=%lu, cap=%lu, pos=%d\n", v->len, v->cap, pos);
-  // printf("get: start=%p, asked=%p\n", v->data, v->data + v->size * pos);
-  return v->data + v->size * pos;
-}
+void *_Vec_get(Vec *v, int pos) { return v->data + v->size * pos; }
