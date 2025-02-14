@@ -9,5 +9,6 @@ typedef struct {
   Vec *array;
   Str *string;
 } JSON;
-JSON JSON_parse(Arena *a, Str src);
+JSON JSON_parse(Arena *a, char *src);
+JSON JSON_Int(Arena *a, int val);
 #endif

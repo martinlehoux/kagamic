@@ -8,4 +8,4 @@ void info(Logger l, const char *name, const char *str, ...) {
     printf(str);
     printf("\n");
   }
-};
+}
