@@ -1,15 +1,16 @@
 #include <stddef.h>
 
 #ifndef MEMORY_H
+#include "types.h"
 #define MEMORY_H
 typedef struct {
-  ptrdiff_t cap;
-  char *beg;
-  char *end;
+  size cap;
+  byte *beg;
+  byte *end;
 } Arena;
 
-Arena Arena_new(ptrdiff_t cap);
+Arena Arena_new(size cap);
 #define new(a, T, n) (T *)alloc(a, n, sizeof(T), _Alignof(T))
-void *alloc(Arena *a, ptrdiff_t count, int size, int align);
+void *alloc(Arena *a, size count, size size, int align);
 int Arena_get_used(Arena a);
 #endif

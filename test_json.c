@@ -2,7 +2,7 @@
 #include "testing.h"
 #include <stdio.h>
 
-char test_json_integer() {
+int test_json_integer() {
   Arena perm = Arena_new(128e3);
 
   JSON json_int = JSON_parse(&perm, "123");
@@ -12,7 +12,7 @@ char test_json_integer() {
   return 0;
 }
 
-char test_json_int_array() {
+int test_json_int_array() {
   Arena perm = Arena_new(128e3);
 
   JSON json_int_array = JSON_parse(&perm, "[1,2,3]");
@@ -35,7 +35,7 @@ char test_json_int_array() {
   return 0;
 }
 
-char test_json_nested_array() {
+int test_json_nested_array() {
   Arena perm = Arena_new(128e3);
 
   JSON doc = JSON_parse(&perm, "[[1,\"abc\"]]");
@@ -53,7 +53,7 @@ char test_json_nested_array() {
   return 0;
 }
 
-char test_json_string() {
+int test_json_string() {
   Arena perm = Arena_new(128e3);
 
   JSON js = JSON_parse(&perm, "\"abc\"");
@@ -65,7 +65,7 @@ char test_json_string() {
   return 0;
 }
 
-char test_json_empty_object() {
+int test_json_empty_object() {
     Arena perm = Arena_new(128e3);
 
     JSON doc = JSON_parse(&perm, "{}");
@@ -76,7 +76,7 @@ char test_json_empty_object() {
     return 0;
 }
 
-char test_json_object() {
+int test_json_object() {
     Arena perm = Arena_new(128e3);
 
     JSON doc = JSON_parse(&perm, "{\"key\": \"value\"}");

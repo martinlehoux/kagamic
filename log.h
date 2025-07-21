@@ -1,7 +1,10 @@
+
+#include "types.h"
+
 typedef enum { INFO } LogLevel;
 
 typedef struct {
   LogLevel level;
 } Logger;
 
-void info(Logger l, const char *name, const char *str, ...);
+void info(Logger l, const byte *name, const byte *str, ...);

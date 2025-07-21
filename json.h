@@ -7,7 +7,7 @@
 typedef struct {
     Vec keys; // Vec<Str>
     Vec values; // Vec<JSON>
-    ptrdiff_t len;
+    size len;
 } JSONObject;
 typedef struct {
   int *integer;
@@ -16,6 +16,6 @@ typedef struct {
   JSONObject *object;
 } JSON;
 JSON* JSONObject_get(JSONObject *obj, Str key);
-JSON JSON_parse(Arena *a, char *src);
+JSON JSON_parse(Arena *a, byte *src);
 JSON JSON_Int(Arena *a, int val);
 #endif

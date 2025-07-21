@@ -10,17 +10,17 @@
 
 typedef struct {
   JSON *value;
-  uintptr_t pos;
+  uptr pos;
 } parse_any_result;
-parse_any_result parse_any(Arena *a, char *src, uintptr_t pos);
+parse_any_result parse_any(Arena *a, byte *src, uptr pos);
 
 typedef struct {
   int *value;
-  uintptr_t pos;
+  uptr pos;
 } parse_integer_result;
 
-parse_integer_result parse_integer(Arena *a, char *src, uintptr_t pos) {
-  char ints[16];
+parse_integer_result parse_integer(Arena *a, byte *src, uptr pos) {
+  byte ints[16];
   int i = 0;
   while (isdigit(src[pos + i])) {
     int val = (src[pos + i] - '0');
@@ -34,7 +34,7 @@ parse_integer_result parse_integer(Arena *a, char *src, uintptr_t pos) {
   return (parse_integer_result){result, pos + i};
 }
 
-uintptr_t absorb_whitespaces(char *src, uintptr_t pos) {
+uptr absorb_whitespaces(byte *src, uptr pos) {
   int i = 0;
   while (isspace(src[pos + i])) {
     i++;
@@ -44,10 +44,10 @@ uintptr_t absorb_whitespaces(char *src, uintptr_t pos) {
 
 typedef struct {
   Vec *items; // Vec<JSON>
-  uintptr_t pos;
+  uptr pos;
 } parse_array_result;
 
-parse_array_result parse_array(Arena *a, char *src, uintptr_t pos) {
+parse_array_result parse_array(Arena *a, byte *src, uptr pos) {
   assert(src[pos] == '[');
   pos++;
   Vec items = Vec_new(a, JSON, 2);
@@ -70,10 +70,10 @@ parse_array_result parse_array(Arena *a, char *src, uintptr_t pos) {
 
 typedef struct {
   Str *string;
-  uintptr_t pos;
+  uptr pos;
 } parse_string_result;
 
-parse_string_result parse_string(Arena *a, char *src, uintptr_t pos) {
+parse_string_result parse_string(Arena *a, byte *src, uptr pos) {
   assert(src[pos] == '"');
   int i = 1;
 
@@ -88,10 +88,10 @@ parse_string_result parse_string(Arena *a, char *src, uintptr_t pos) {
 
 typedef struct {
   JSONObject *object;
-  uintptr_t pos;
+  uptr pos;
 } parse_object_result;
 
-parse_object_result parse_object(Arena *a, char *src, uintptr_t pos) {
+parse_object_result parse_object(Arena *a, byte *src, uptr pos) {
     assert(src[pos] == '{');
     JSONObject *object = new(a, JSONObject, 1);
     object->len = 0;
@@ -120,7 +120,7 @@ parse_object_result parse_object(Arena *a, char *src, uintptr_t pos) {
     return (parse_object_result){object, pos+1};
 }
 
-parse_any_result parse_any(Arena *a, char *src, uintptr_t pos) {
+parse_any_result parse_any(Arena *a, byte *src, uptr pos) {
   JSON *value = new (a, JSON, 1);
   if (isdigit(src[pos])) {
     parse_integer_result result = parse_integer(a, src, pos);
@@ -143,7 +143,7 @@ parse_any_result parse_any(Arena *a, char *src, uintptr_t pos) {
   return (parse_any_result){value, pos};
 }
 
-JSON JSON_parse(Arena *a, char *src) {
+JSON JSON_parse(Arena *a, byte *src) {
   parse_any_result result = parse_any(a, src, 0);
   return *result.value;
 }
@@ -156,7 +156,7 @@ JSON JSON_Int(Arena *a, int val) {
 }
 
 JSON* JSONObject_get(JSONObject *obj, Str key) {
-    for (ptrdiff_t i = 0; i < obj->len; i++) {
+    for (size i = 0; i < obj->len; i++) {
         if (Str_equals(*Vec_get(&obj->keys, Str, i), key)) {
             return Vec_get(&obj->values, JSON, i);
         }

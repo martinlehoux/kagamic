@@ -10,7 +10,7 @@ Inspirations:
 #include "string.h"
 #include "vec.h"
 
-#define sizeof(x) (ptrdiff_t)sizeof(x)
+#define sizeof(x) (size)sizeof(x)
 #define countof(a) (sizeof(a) / sizeof(*(a)))
 #define lengthof(s) (countof(s) - 1)
 
