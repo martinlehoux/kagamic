@@ -6,7 +6,8 @@
 
 #ifndef STRING_H
 #define STRING_H
-#define S(s) (Str){s, sizeof(s) - 1}
+#define S(s)                                                                   \
+    (Str) { s, lengthof(s) }
 typedef struct {
     byte *data;
     size len;

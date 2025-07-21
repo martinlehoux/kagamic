@@ -9,7 +9,7 @@
 - Benchmark 1MB file
 - More modern include pragma (once)
 - File structure
-- Ignore some errors
+- Static functions for private?
 
 ## Resources
 
