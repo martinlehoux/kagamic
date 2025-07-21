@@ -3,8 +3,8 @@
 #include <assert.h>
 #include <ctype.h>
 #include <math.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #include "string.h"
 
@@ -43,7 +43,7 @@ uintptr_t absorb_whitespaces(char *src, uintptr_t pos) {
 }
 
 typedef struct {
-  Vec *items;
+  Vec *items; // Vec<JSON>
   uintptr_t pos;
 } parse_array_result;
 
@@ -86,6 +86,40 @@ parse_string_result parse_string(Arena *a, char *src, uintptr_t pos) {
   return (parse_string_result){s, pos + i + 1};
 }
 
+typedef struct {
+  JSONObject *object;
+  uintptr_t pos;
+} parse_object_result;
+
+parse_object_result parse_object(Arena *a, char *src, uintptr_t pos) {
+    assert(src[pos] == '{');
+    JSONObject *object = new(a, JSONObject, 1);
+    object->len = 0;
+    object->keys = Vec_new(a, Str, 2);
+    object->values = Vec_new(a, JSON, 2);
+    pos = absorb_whitespaces(src, pos + 1);
+    if (src[pos] == '}') {
+        return (parse_object_result){object, pos + 1};
+    }
+    for (;;) {
+        assert(src[pos] == '"');
+        parse_string_result str_result = parse_string(a, src, pos);
+        Str key = str_result.string;
+        pos = absorb_whitespaces(src, str_result.pos);
+        assert(src[pos] == ':');
+        pos = absorb_whitespaces(src,  pos+1);
+        parse_any_result any_result = parse_any(a, src, pos);
+        object->len++;
+        Vec_push(a, &object->keys, &key);
+        Vec_push(a, &object->values, any_result.value);
+        pos = absorb_whitespaces(src, any_result.pos);
+        if (src[pos] != ',') {break;}
+        pos = absorb_whitespaces(src, pos +1);
+    }
+    assert(src[pos] == '}');
+    return (parse_object_result){object, pos+1};
+}
+
 parse_any_result parse_any(Arena *a, char *src, uintptr_t pos) {
   JSON *value = new (a, JSON, 1);
   if (isdigit(src[pos])) {
@@ -99,6 +133,10 @@ parse_any_result parse_any(Arena *a, char *src, uintptr_t pos) {
   } else if (src[pos] == '"') {
     parse_string_result result = parse_string(a, src, pos);
     value->string = &result.string;
+    pos = result.pos;
+  } else if (src[pos] == '{') {
+    parse_object_result result = parse_object(a, src, pos);
+    value->object = result.object;
     pos = result.pos;
   }
 
@@ -115,4 +153,13 @@ JSON JSON_Int(Arena *a, int val) {
   json.integer = new (a, int, 1);
   *json.integer = val;
   return json;
+}
+
+JSON* JSONObject_get(JSONObject *obj, Str key) {
+    for (ptrdiff_t i = 0; i < obj->len; i++) {
+        if (Str_equals(*Vec_get(&obj->keys, Str, i), key)) {
+            return Vec_get(&obj->values, JSON, i);
+        }
+    }
+    return NULL;
 }

@@ -1,15 +1,10 @@
 #include "string.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "memory.h"
-
-Str *Str_new(Arena *a, uintptr_t len) {
-  Str *s = new (a, Str, 1);
-  s->data = new (a, char, len);
-  return s;
-}
 
 // Returns 1 if strings are equal, 0 otherwise
 int Str_equals(Str a, Str b) {
@@ -26,9 +21,13 @@ uint64_t Str_hash64(Str s) {
 }
 
 Str Str_copy(Arena *a, char *data, uintptr_t len) {
-  Str str = {0, len};
-  str.data = new (a, char, len);
+  Str str = {.data = NULL, .len = len};
+  str.data =  new (a, char, len);
   if (str.len)
     memcpy(str.data, data, len);
   return str;
+}
+
+void Str_print(Str s) {
+    printf("%.*s", (int)s.len, s.data);
 }

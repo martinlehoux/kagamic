@@ -5,12 +5,8 @@
 
 Vec _Vec_new(Arena *a, int size, ptrdiff_t cap, int align) {
   assert(cap > 0);
-  Vec v = {0};
+  Vec v = {.size = size, .cap = cap, .len = 0, .align = align,.data = NULL};
   v.data = alloc(a, cap, size, align);
-  v.size = size;
-  v.align = align;
-  v.cap = cap;
-  v.len = 0;
   return v;
 }
 
