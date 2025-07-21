@@ -11,6 +11,7 @@ Str *Str_new(Arena *a, uintptr_t len) {
   return s;
 }
 
+// Returns 1 if strings are equal, 0 otherwise
 int Str_equals(Str a, Str b) {
   return (a.len == b.len) && (!a.len || !memcmp(a.data, b.data, a.len));
 }

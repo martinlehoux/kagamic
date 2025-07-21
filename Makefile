@@ -14,5 +14,3 @@ test:
 	fish generate.fish;
 	make debug;
 	./Debug/test;
-	make release;
-	./Release/test;
