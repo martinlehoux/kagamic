@@ -3,13 +3,15 @@
 ## TODO
 
 - Testing setup
-- Vec push no need to reallocate vec, only items. Same for Str? Read about stack pointers in C
 - Vec_get not safe, I made a type mistake. And should be more efficient for loops
 - Fix tests in release
-- Benchmark 1MB file
+- Benchmark 100MB file
+  - json.loads: 526 ms ± 77 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+- Vec_new returns pointer
 - More modern include pragma (once)
 - File structure
 - Static functions for private?
+- JSON float
 
 ## Resources
 

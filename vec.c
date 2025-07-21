@@ -4,10 +4,14 @@
 #include "types.h"
 #include "vec.h"
 
-Vec _Vec_new(Arena *a, size tsize, size cap, int align) {
+Vec *_Vec_new(Arena *a, size tsize, size cap, int align) {
     assert(cap > 0);
-    Vec v = {.size = tsize, .cap = cap, .len = 0, .align = align, .data = 0};
-    v.data = alloc(a, cap, tsize, align);
+    Vec *v = new(a, Vec, 1);
+    v->size = tsize;
+    v->cap = cap;
+    v->align = align;
+    v->len = 0;
+    v->data = alloc(a, cap, tsize, align);
     return v;
 }
 

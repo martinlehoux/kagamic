@@ -29,4 +29,6 @@ Str *Str_copy(Arena *a, byte *data, size len) {
     return str;
 }
 
-void Str_print(Str s) { printf("%.*s", (int)s.len, s.data); }
+int Str_fprint(FILE *w, Str s) {
+    return fprintf(w, "%.*s", (int)s.len, s.data);
+}

@@ -5,8 +5,51 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
+#include "json.h"
 #include "string.h"
+
+JSONObject *JSONObject_new(Arena *a) {
+    JSONObject *object = new(a, JSONObject, 1);
+    object->len = 0;
+    object->keys = *Vec_new(a, Str, 2);
+    object->values = *Vec_new(a, JSON, 2);
+    return object;
+}
+
+int JSON_fprint(FILE *w, JSON json) {
+    if (json.string != 0)
+        return Str_fprint(w, *json.string);
+    if (json.integer != 0)
+        return fprintf(w, "%d", *json.integer);
+    if (json.object != 0) {
+        fprintf(w, "{");
+        for (size i = 0; i < json.object->len; i++) {
+            Str key = *Vec_get(&json.object->keys, Str, i);
+            Str_fprint(w, key);
+            fprintf(w, ": ");
+            JSON value = *Vec_get(&json.object->values, JSON, i);
+            JSON_fprint(w, value);
+            if (i < json.object->len - 1)
+                fprintf(w, ", ");
+        }
+        fprintf(w, "}");
+        return 0;
+    }
+    if (json.array != 0) {
+        fprintf(w, "[");
+        for (size i = 0; i < json.array->len; i++) {
+            JSON value = *Vec_get(json.array, JSON, i);
+            JSON_fprint(w, value);
+            if (i < json.array->len - 1)
+                fprintf(w, ", ");
+        }
+        fprintf(w, "]");
+        return 0;
+    }
+    return fprintf(w, "null");
+}
 
 typedef struct {
     JSON *value;
@@ -19,11 +62,11 @@ typedef struct {
     uptr pos;
 } parse_integer_result;
 
-parse_integer_result parse_integer(Arena *a, byte *src, uptr pos) {
+parse_integer_result parse_integer(Arena *a, byte *src, uptr start_pos) {
     byte ints[16];
     int i = 0;
-    while (isdigit(src[pos + i])) {
-        int val = (src[pos + i] - '0');
+    while (isdigit(src[start_pos + i])) {
+        int val = (src[start_pos + i] - '0');
         ints[i] = val;
         i++;
     }
@@ -31,15 +74,15 @@ parse_integer_result parse_integer(Arena *a, byte *src, uptr pos) {
     for (int j = 0; j < i; j++) {
         *result += ints[j] * pow(10, (i - j - 1));
     }
-    return (parse_integer_result){result, pos + i};
+    return (parse_integer_result){result, start_pos + i};
 }
 
-uptr absorb_whitespaces(byte *src, uptr pos) {
-    int i = 0;
-    while (isspace(src[pos + i])) {
-        i++;
+uptr absorb_whitespaces(byte *src, uptr start_pos) {
+    uptr pos = start_pos;
+    while (isspace(src[pos])) {
+        pos++;
     }
-    return pos + i;
+    return pos;
 }
 
 typedef struct {
@@ -47,25 +90,29 @@ typedef struct {
     uptr pos;
 } parse_array_result;
 
-parse_array_result parse_array(Arena *a, byte *src, uptr pos) {
-    assert(src[pos] == '[');
-    pos++;
-    Vec items = Vec_new(a, JSON, 2);
+parse_array_result parse_array(Arena *a, byte *src, uptr start_pos) {
+    assert(src[start_pos] == '[');
+    parse_array_result result = {0};
+    result.pos = start_pos + 1;
+    result.items = Vec_new(a, JSON, 2);
+    if (src[result.pos] == ']') {
+        result.pos++;
+        return result;
+    }
     for (;;) {
-        pos = absorb_whitespaces(src, pos);
-        parse_any_result result = parse_any(a, src, pos);
-        Vec_push(a, &items, result.value);
-        pos = result.pos;
-        pos = absorb_whitespaces(src, pos);
-        if (src[pos] == ',') {
-            pos++;
+        result.pos = absorb_whitespaces(src, result.pos);
+        parse_any_result any_result = parse_any(a, src, result.pos);
+        Vec_push(a, result.items, any_result.value);
+        result.pos = absorb_whitespaces(src, any_result.pos);
+        if (src[result.pos] == ',') {
+            result.pos++;
         } else {
             break;
         }
     };
-    assert(src[pos] == ']');
-
-    return (parse_array_result){&items, pos + 1};
+    assert(src[result.pos] == ']');
+    result.pos++;
+    return result;
 }
 
 typedef struct {
@@ -73,17 +120,19 @@ typedef struct {
     uptr pos;
 } parse_string_result;
 
-parse_string_result parse_string(Arena *a, byte *src, uptr pos) {
-    assert(src[pos] == '"');
-    int i = 1;
+parse_string_result parse_string(Arena *a, byte *src, uptr start_pos) {
+    assert(src[start_pos] == '"');
+    parse_string_result result = {.pos = start_pos + 1};
 
-    while (src[pos + i] != '"' && src[pos + i - 1] != '\\') {
-        i++;
+    while (src[result.pos] != '"' && src[result.pos - 1] != '\\') {
+        result.pos++;
     }
-    assert(src[pos + i] == '"');
-    Str *s = Str_copy(a, &src[pos + 1], i - 1);
+    assert(src[result.pos] == '"');
+    result.string =
+        Str_copy(a, &src[start_pos + 1], result.pos - start_pos - 1);
+    result.pos++;
 
-    return (parse_string_result){s, pos + i + 1};
+    return result;
 }
 
 typedef struct {
@@ -91,58 +140,59 @@ typedef struct {
     uptr pos;
 } parse_object_result;
 
-parse_object_result parse_object(Arena *a, byte *src, uptr pos) {
-    assert(src[pos] == '{');
-    JSONObject *object = new(a, JSONObject, 1);
-    object->len = 0;
-    object->keys = Vec_new(a, Str, 2);
-    object->values = Vec_new(a, JSON, 2);
-    pos = absorb_whitespaces(src, pos + 1);
-    if (src[pos] == '}') {
-        return (parse_object_result){object, pos + 1};
+parse_object_result parse_object(Arena *a, byte *src, uptr start_pos) {
+    assert(src[start_pos] == '{');
+    parse_object_result result = {.pos = start_pos + 1};
+    result.object = JSONObject_new(a);
+    start_pos = absorb_whitespaces(src, start_pos + 1);
+    if (src[start_pos] == '}') {
+        result.pos = start_pos + 1;
+        return result;
     }
     for (;;) {
-        assert(src[pos] == '"');
-        parse_string_result str_result = parse_string(a, src, pos);
+        assert(src[start_pos] == '"');
+        parse_string_result str_result = parse_string(a, src, start_pos);
         Str *key = str_result.string;
-        pos = absorb_whitespaces(src, str_result.pos);
-        assert(src[pos] == ':');
-        pos = absorb_whitespaces(src, pos + 1);
-        parse_any_result any_result = parse_any(a, src, pos);
-        object->len++;
-        Vec_push(a, &object->keys, key);
-        Vec_push(a, &object->values, any_result.value);
-        pos = absorb_whitespaces(src, any_result.pos);
-        if (src[pos] != ',') {
+        start_pos = absorb_whitespaces(src, str_result.pos);
+        assert(src[start_pos] == ':');
+        start_pos = absorb_whitespaces(src, start_pos + 1);
+        parse_any_result any_result = parse_any(a, src, start_pos);
+        result.object->len++;
+        Vec_push(a, &result.object->keys, key);
+        Vec_push(a, &result.object->values, any_result.value);
+        start_pos = absorb_whitespaces(src, any_result.pos);
+        if (src[start_pos] != ',') {
             break;
         }
-        pos = absorb_whitespaces(src, pos + 1);
+        start_pos = absorb_whitespaces(src, start_pos + 1);
     }
-    assert(src[pos] == '}');
-    return (parse_object_result){object, pos + 1};
+    assert(src[start_pos] == '}');
+    result.pos = start_pos + 1;
+    return result;
 }
 
-parse_any_result parse_any(Arena *a, byte *src, uptr pos) {
-    JSON *value = new(a, JSON, 1);
-    if (isdigit(src[pos])) {
-        parse_integer_result result = parse_integer(a, src, pos);
-        value->integer = result.value;
-        pos = result.pos;
-    } else if (src[pos] == '[') {
-        parse_array_result result = parse_array(a, src, pos);
-        value->array = result.items;
-        pos = result.pos;
-    } else if (src[pos] == '"') {
-        parse_string_result result = parse_string(a, src, pos);
-        value->string = result.string;
-        pos = result.pos;
-    } else if (src[pos] == '{') {
-        parse_object_result result = parse_object(a, src, pos);
-        value->object = result.object;
-        pos = result.pos;
+parse_any_result parse_any(Arena *a, byte *src, uptr start_pos) {
+    parse_any_result result = {.pos = start_pos};
+    result.value = new(a, JSON, 1);
+    if (isdigit(src[result.pos])) {
+        parse_integer_result int_result = parse_integer(a, src, result.pos);
+        result.value->integer = int_result.value;
+        result.pos = int_result.pos;
+    } else if (src[result.pos] == '[') {
+        parse_array_result array_result = parse_array(a, src, result.pos);
+        result.value->array = array_result.items;
+        result.pos = array_result.pos;
+    } else if (src[result.pos] == '"') {
+        parse_string_result string_result = parse_string(a, src, result.pos);
+        result.value->string = string_result.string;
+        result.pos = string_result.pos;
+    } else if (src[result.pos] == '{') {
+        parse_object_result object_result = parse_object(a, src, result.pos);
+        result.value->object = object_result.object;
+        result.pos = object_result.pos;
     }
 
-    return (parse_any_result){value, pos};
+    return result;
 }
 
 JSON JSON_parse(Arena *a, byte *src) {

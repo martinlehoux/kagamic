@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "memory.h"
 #include "types.h"
@@ -15,5 +16,5 @@ typedef struct {
 int Str_equals(Str a, Str b);
 uint64_t Str_hash64(Str s);
 Str *Str_copy(Arena *a, byte *data, size len);
-void Str_print(Str s);
+int Str_fprint(FILE *w, Str s);
 #endif

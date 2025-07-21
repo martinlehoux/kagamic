@@ -16,6 +16,7 @@ typedef struct {
     JSONObject *object;
 } JSON;
 JSON *JSONObject_get(JSONObject *obj, Str key);
+int JSON_fprint(FILE *w, JSON json);
 JSON JSON_parse(Arena *a, byte *src);
 JSON JSON_Int(Arena *a, int val);
 #endif
