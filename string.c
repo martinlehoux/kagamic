@@ -20,11 +20,12 @@ uint64_t Str_hash64(Str s) {
   return h;
 }
 
-Str Str_copy(Arena *a, char *data, uintptr_t len) {
-  Str str = {.data = NULL, .len = len};
-  str.data =  new (a, char, len);
-  if (str.len)
-    memcpy(str.data, data, len);
+Str* Str_copy(Arena *a, char *data, uintptr_t len) {
+  Str *str = new(a, Str, 1);
+  str->len = len;
+  str->data =  new (a, char, len);
+  if (str->len)
+    memcpy(str->data, data, len);
   return str;
 }
 

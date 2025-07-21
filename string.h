@@ -12,6 +12,6 @@ typedef struct {
 } Str;
 int Str_equals(Str a, Str b);
 uint64_t Str_hash64(Str s);
-Str Str_copy(Arena *a, char *data, uintptr_t len);
+Str* Str_copy(Arena *a, char *data, uintptr_t len);
 void Str_print(Str s);
 #endif

@@ -69,7 +69,7 @@ parse_array_result parse_array(Arena *a, char *src, uintptr_t pos) {
 }
 
 typedef struct {
-  Str string;
+  Str *string;
   uintptr_t pos;
 } parse_string_result;
 
@@ -81,7 +81,7 @@ parse_string_result parse_string(Arena *a, char *src, uintptr_t pos) {
     i++;
   }
   assert(src[pos + i] == '"');
-  Str s = Str_copy(a, &src[pos + 1], i - 1);
+  Str* s = Str_copy(a, &src[pos + 1], i - 1);
 
   return (parse_string_result){s, pos + i + 1};
 }
@@ -104,13 +104,13 @@ parse_object_result parse_object(Arena *a, char *src, uintptr_t pos) {
     for (;;) {
         assert(src[pos] == '"');
         parse_string_result str_result = parse_string(a, src, pos);
-        Str key = str_result.string;
+        Str *key = str_result.string;
         pos = absorb_whitespaces(src, str_result.pos);
         assert(src[pos] == ':');
         pos = absorb_whitespaces(src,  pos+1);
         parse_any_result any_result = parse_any(a, src, pos);
         object->len++;
-        Vec_push(a, &object->keys, &key);
+        Vec_push(a, &object->keys, key);
         Vec_push(a, &object->values, any_result.value);
         pos = absorb_whitespaces(src, any_result.pos);
         if (src[pos] != ',') {break;}
@@ -132,7 +132,7 @@ parse_any_result parse_any(Arena *a, char *src, uintptr_t pos) {
     pos = result.pos;
   } else if (src[pos] == '"') {
     parse_string_result result = parse_string(a, src, pos);
-    value->string = &result.string;
+    value->string = result.string;
     pos = result.pos;
   } else if (src[pos] == '{') {
     parse_object_result result = parse_object(a, src, pos);
