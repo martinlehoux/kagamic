@@ -7,11 +7,11 @@
 #ifndef VEC_H
 #define VEC_H
 typedef struct {
-  void *data;
-  size len;
-  size cap;
-  size size;
-  int align;
+    void *data;
+    size len;
+    size cap;
+    size size;
+    int align;
 } Vec;
 #define Vec_new(a, T, cap) _Vec_new(a, sizeof(T), cap, _Alignof(T))
 Vec _Vec_new(Arena *a, size tsize, size cap, int align);

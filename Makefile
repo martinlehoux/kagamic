@@ -14,3 +14,6 @@ test:
 	fish generate.fish;
 	make debug;
 	./Debug/test;
+
+format:
+	clang-format -i *.c *.h

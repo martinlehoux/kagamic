@@ -4,9 +4,9 @@
 #include "types.h"
 #define MEMORY_H
 typedef struct {
-  size cap;
-  byte *beg;
-  byte *end;
+    size cap;
+    byte *beg;
+    byte *end;
 } Arena;
 
 Arena Arena_new(size cap);

@@ -10,12 +10,8 @@ Inspirations:
 #include "string.h"
 #include "vec.h"
 
-#define sizeof(x) (size)sizeof(x)
-#define countof(a) (sizeof(a) / sizeof(*(a)))
-#define lengthof(s) (countof(s) - 1)
-
 typedef struct {
-  int age;
+    int age;
 } User;
 
 int main() { return 0; }

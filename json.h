@@ -5,17 +5,17 @@
 #include "vec.h"
 
 typedef struct {
-    Vec keys; // Vec<Str>
+    Vec keys;   // Vec<Str>
     Vec values; // Vec<JSON>
     size len;
 } JSONObject;
 typedef struct {
-  int *integer;
-  Vec *array; // Vec<JSON>
-  Str *string;
-  JSONObject *object;
+    int *integer;
+    Vec *array; // Vec<JSON>
+    Str *string;
+    JSONObject *object;
 } JSON;
-JSON* JSONObject_get(JSONObject *obj, Str key);
+JSON *JSONObject_get(JSONObject *obj, Str key);
 JSON JSON_parse(Arena *a, byte *src);
 JSON JSON_Int(Arena *a, int val);
 #endif
