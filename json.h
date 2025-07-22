@@ -10,14 +10,14 @@ typedef struct {
     size len;
 } JSONObject;
 typedef struct {
-    int *boolean;
-    int *integer;
+    i32 *boolean;
+    i32 *integer;
     Vec *array; // Vec<JSON>
     Str *string;
     JSONObject *object;
 } JSON;
 JSON *JSONObject_get(JSONObject *obj, Str key);
-int JSON_fprint(FILE *w, JSON json);
+i32 JSON_fprint(FILE *w, JSON json);
 JSON JSON_parse(Arena *a, byte *src);
-JSON JSON_Int(Arena *a, int val);
+JSON JSON_Int(Arena *a, i32 val);
 #endif

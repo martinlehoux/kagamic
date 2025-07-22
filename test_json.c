@@ -1,7 +1,7 @@
 #include "json.h"
 #include "testing.h"
 
-int test_json_integer() {
+i32 test_json_integer() {
     Arena perm = Arena_new(128e3);
 
     JSON json_int = JSON_parse(&perm, "123");
@@ -11,7 +11,7 @@ int test_json_integer() {
     return 0;
 }
 
-int test_json_int_array() {
+i32 test_json_int_array() {
     Arena perm = Arena_new(128e3);
 
     JSON json_int_array = JSON_parse(&perm, "[1,2,3]");
@@ -34,7 +34,7 @@ int test_json_int_array() {
     return 0;
 }
 
-int test_json_empty_array() {
+i32 test_json_empty_array() {
     Arena perm = Arena_new(128e3);
 
     JSON json_empty_array = JSON_parse(&perm, "[]");
@@ -45,7 +45,7 @@ int test_json_empty_array() {
     return 0;
 }
 
-int test_json_nested_array() {
+i32 test_json_nested_array() {
     Arena perm = Arena_new(128e3);
 
     JSON doc = JSON_parse(&perm, "[[1,\"abc\"]]");
@@ -63,7 +63,7 @@ int test_json_nested_array() {
     return 0;
 }
 
-int test_json_string() {
+i32 test_json_string() {
     Arena perm = Arena_new(128e3);
 
     JSON js = JSON_parse(&perm, "\"abc\"");
@@ -75,7 +75,7 @@ int test_json_string() {
     return 0;
 }
 
-int test_json_empty_object() {
+i32 test_json_empty_object() {
     Arena perm = Arena_new(128e3);
 
     JSON doc = JSON_parse(&perm, "{}");
@@ -86,7 +86,7 @@ int test_json_empty_object() {
     return 0;
 }
 
-int test_json_object() {
+i32 test_json_object() {
     Arena perm = Arena_new(128e3);
 
     JSON doc = JSON_parse(&perm, "{\"key\": \"value\"}");
@@ -101,7 +101,7 @@ int test_json_object() {
     return 0;
 }
 
-int test_json_boolean() {
+i32 test_json_boolean() {
     Arena perm = Arena_new(128e3);
 
     JSON doc = JSON_parse(&perm, "{\"a\": true, \"b\": false}");

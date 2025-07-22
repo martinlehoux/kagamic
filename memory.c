@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,12 +17,12 @@ Arena Arena_new(size cap) {
 
 // Magic to allow optimisation __attribute((malloc, alloc_size(2, 4),
 // alloc_align(3)))
-void *alloc(Arena *a, size count, size tsize, int align) {
-    int padding = -(uptr)a->beg & (align - 1);
+void *alloc(Arena *a, size count, size tsize, size align) {
+    size padding = -(uptr)a->beg & (align - 1);
     assert(count < (a->end - a->beg - padding) / tsize);
     void *cursor = a->beg + padding;
     a->beg += padding + count * tsize;
     return memset(cursor, 0, count * tsize);
 }
 
-int Arena_get_used(Arena a) { return a.cap - (a.end - a.beg); }
+size Arena_get_used(Arena a) { return a.cap - (a.end - a.beg); }

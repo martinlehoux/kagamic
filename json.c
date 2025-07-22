@@ -19,7 +19,7 @@ JSONObject *JSONObject_new(Arena *a) {
     return object;
 }
 
-int JSON_fprint(FILE *w, JSON json) {
+i32 JSON_fprint(FILE *w, JSON json) {
     if (json.string != 0)
         return Str_fprint(w, *json.string);
     if (json.integer != 0)
@@ -59,20 +59,20 @@ typedef struct {
 parse_any_result parse_any(Arena *a, byte *src, uptr pos);
 
 typedef struct {
-    int *value;
+    i32 *value;
     uptr pos;
 } parse_integer_result;
 
 parse_integer_result parse_integer(Arena *a, byte *src, uptr start_pos) {
     byte ints[16];
-    int i = 0;
+    i32 i = 0;
     while (isdigit(src[start_pos + i])) {
-        int val = (src[start_pos + i] - '0');
+        i32 val = (src[start_pos + i] - '0');
         ints[i] = val;
         i++;
     }
-    int *result = new(a, int, 1);
-    for (int j = 0; j < i; j++) {
+    i32 *result = new(a, int, 1);
+    for (i32 j = 0; j < i; j++) {
         *result += ints[j] * pow(10, (i - j - 1));
     }
     return (parse_integer_result){result, start_pos + i};
@@ -192,11 +192,11 @@ parse_any_result parse_any(Arena *a, byte *src, uptr start_pos) {
         result.value->object = object_result.object;
         result.pos = object_result.pos;
     } else if (memcmp(src + result.pos, "true", 4) == 0) {
-        result.value->boolean = new(a, int, 1);
+        result.value->boolean = new(a, i32, 1);
         *result.value->boolean = 1;
         result.pos = start_pos + 4;
     } else if (memcmp(src + result.pos, "false", 5) == 0) {
-        result.value->boolean = new(a, int, 1);
+        result.value->boolean = new(a, i32, 1);
         *result.value->boolean = 0;
         result.pos = start_pos + 5;
     }
@@ -209,9 +209,9 @@ JSON JSON_parse(Arena *a, byte *src) {
     return *result.value;
 }
 
-JSON JSON_Int(Arena *a, int val) {
+JSON JSON_Int(Arena *a, i32 val) {
     JSON json = {0};
-    json.integer = new(a, int, 1);
+    json.integer = new(a, i32, 1);
     *json.integer = val;
     return json;
 }

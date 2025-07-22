@@ -1,3 +1,5 @@
+#include "types.h"
+
 #define test(func)                                                             \
     switch (func()) {                                                          \
     case 0:                                                                    \
@@ -9,5 +11,5 @@
         printf("🚫 %s\n", #func);                                              \
     }
 
-int success;
-int failures;
+i32 success;
+i32 failures;

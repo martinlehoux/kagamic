@@ -1,12 +1,12 @@
 #include "string.h"
 #include "testing.h"
 
-int test_string_literal_equality() {
+i32 test_string_literal_equality() {
     t_assert(Str_equals(S("Bonjour"), S("Bonjour")));
     return 0;
 }
 
-int test_string_copy() {
+i32 test_string_copy() {
     Arena perm = Arena_new(128e3);
     Str src = S("Hello");
 

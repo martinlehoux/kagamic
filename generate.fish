@@ -6,10 +6,10 @@ end;
 echo -e "" >> test.c
 cat base_test.c >> test.c;
 echo -e "" >> test.c;
-echo "int main() {" >> test.c;
+echo "i32 main() {" >> test.c;
 for f in $fs;
     echo "Parsing $f";
-    set funcs (rg 'int test_' $f);
+    set funcs (rg 'i32 test_' $f);
     for func in $funcs;
         set pfunc (echo $func | awk '{match($0, /test_[^(]+/); print substr($0, RSTART, RLENGTH)}');
         echo "Found $pfunc in $f";
