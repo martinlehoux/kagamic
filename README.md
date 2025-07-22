@@ -12,6 +12,8 @@
 - File structure
 - Static functions for private?
 - JSON float
+- JSON: remove pointer and use bitflag
+- JSON: tagged union for memory
 
 ## Resources
 

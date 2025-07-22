@@ -10,6 +10,7 @@ typedef struct {
     size len;
 } JSONObject;
 typedef struct {
+    int *boolean;
     int *integer;
     Vec *array; // Vec<JSON>
     Str *string;
