@@ -213,6 +213,11 @@ parse_any_result parse_any(Arena *a, byte *src, uptr start_pos) {
         result.value->boolean = new(a, i32, 1);
         *result.value->boolean = 0;
         result.pos = start_pos + 5;
+    } else if (memcmp(src + result.pos, "null", 4) == 0) {
+        result.value->null = new(a, i32, 1);
+        result.pos = start_pos + 4;
+    } else {
+        assert(false);
     }
 
     return result;

@@ -15,6 +15,7 @@ typedef struct {
     f32 *floating;
     Vec *array; // Vec<JSON>
     Str *string;
+    void *null;
     JSONObject *object;
 } JSON;
 JSON *JSONObject_get(JSONObject *obj, Str key);
