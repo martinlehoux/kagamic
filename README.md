@@ -2,18 +2,15 @@
 
 ## TODO
 
-- Testing setup
 - Vec_get not safe, I made a type mistake. And should be more efficient for loops
 - Fix tests in release
 - Benchmark 100MB file
   - json.loads: 526 ms ± 77 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
-- Vec_new returns pointer
 - More modern include pragma (once)
 - File structure
 - Static functions for private?
-- JSON float
-- JSON: remove pointer and use bitflag
-- JSON: tagged union for memory
+- JSON: tagged union for memory, remove pointer and use bitflag
+- `valgrind --leak-check=full ./your_program`
 
 ## Resources
 

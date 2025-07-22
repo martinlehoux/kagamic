@@ -20,16 +20,24 @@ JSONObject *JSONObject_new(Arena *a) {
 }
 
 i32 JSON_fprint(FILE *w, JSON json) {
-    if (json.string != 0)
-        return Str_fprint(w, *json.string);
+    if (json.string != 0) {
+        fprintf(w, "\"");
+        Str_fprint(w, *json.string);
+        return fprintf(w, "\"");
+    }
     if (json.integer != 0)
         return fprintf(w, "%d", *json.integer);
+    if (json.floating != 0)
+        return fprintf(w, "%f", *json.floating);
+    if (json.boolean != 0)
+        return fprintf(w, "%s", *json.boolean ? "true" : "false");
     if (json.object != 0) {
         fprintf(w, "{");
         for (size i = 0; i < json.object->len; i++) {
             Str key = *Vec_get(&json.object->keys, Str, i);
+            fprintf(w, "\"");
             Str_fprint(w, key);
-            fprintf(w, ": ");
+            fprintf(w, "\": ");
             JSON value = *Vec_get(&json.object->values, JSON, i);
             JSON_fprint(w, value);
             if (i < json.object->len - 1)
@@ -65,7 +73,10 @@ typedef struct {
 } parse_number_result;
 
 parse_number_result parse_number(Arena *a, byte *src, uptr start_pos) {
-    parse_number_result result = {.pos = start_pos};
+    parse_number_result result = {0};
+    result.pos = start_pos;
+    result.floating = 0;
+    result.integer = 0;
     i32 integer = 0;
     while (isdigit(src[result.pos])) {
         integer = integer * 10 + (src[result.pos] - '0');
@@ -134,7 +145,8 @@ typedef struct {
 
 parse_string_result parse_string(Arena *a, byte *src, uptr start_pos) {
     assert(src[start_pos] == '"');
-    parse_string_result result = {.pos = start_pos + 1};
+    parse_string_result result = {0};
+    result.pos = start_pos + 1;
 
     while (src[result.pos] != '"' && src[result.pos - 1] != '\\') {
         result.pos++;
@@ -154,37 +166,38 @@ typedef struct {
 
 parse_object_result parse_object(Arena *a, byte *src, uptr start_pos) {
     assert(src[start_pos] == '{');
-    parse_object_result result = {.pos = start_pos + 1};
+    parse_object_result result = {0};
+    result.pos = start_pos + 1;
     result.object = JSONObject_new(a);
-    start_pos = absorb_whitespaces(src, start_pos + 1);
-    if (src[start_pos] == '}') {
-        result.pos = start_pos + 1;
+    result.pos = absorb_whitespaces(src, result.pos);
+    if (src[result.pos] == '}') {
+        result.pos++;
         return result;
     }
     for (;;) {
-        assert(src[start_pos] == '"');
-        parse_string_result str_result = parse_string(a, src, start_pos);
-        Str *key = str_result.string;
-        start_pos = absorb_whitespaces(src, str_result.pos);
-        assert(src[start_pos] == ':');
-        start_pos = absorb_whitespaces(src, start_pos + 1);
-        parse_any_result any_result = parse_any(a, src, start_pos);
+        assert(src[result.pos] == '"');
+        parse_string_result key_result = parse_string(a, src, result.pos);
+        result.pos = absorb_whitespaces(src, key_result.pos);
+        assert(src[result.pos] == ':');
+        result.pos = absorb_whitespaces(src, result.pos + 1);
+        parse_any_result value_result = parse_any(a, src, result.pos);
         result.object->len++;
-        Vec_push(a, &result.object->keys, key);
-        Vec_push(a, &result.object->values, any_result.value);
-        start_pos = absorb_whitespaces(src, any_result.pos);
-        if (src[start_pos] != ',') {
+        Vec_push(a, &result.object->keys, key_result.string);
+        Vec_push(a, &result.object->values, value_result.value);
+        result.pos = absorb_whitespaces(src, value_result.pos);
+        if (src[result.pos] != ',') {
             break;
         }
-        start_pos = absorb_whitespaces(src, start_pos + 1);
+        result.pos = absorb_whitespaces(src, result.pos + 1);
     }
-    assert(src[start_pos] == '}');
-    result.pos = start_pos + 1;
+    assert(src[result.pos] == '}');
+    result.pos++;
     return result;
 }
 
 parse_any_result parse_any(Arena *a, byte *src, uptr start_pos) {
-    parse_any_result result = {.pos = start_pos};
+    parse_any_result result = {0};
+    result.pos = start_pos;
     result.value = new(a, JSON, 1);
     if (isdigit(src[result.pos])) {
         parse_number_result number_result = parse_number(a, src, result.pos);

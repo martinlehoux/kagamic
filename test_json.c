@@ -137,3 +137,32 @@ i32 test_json_null() {
 
     return 0;
 }
+
+i32 test_json_multiline() {
+    Arena perm = Arena_new(128e3);
+
+    JSON doc = JSON_parse(
+        &perm, "{\n"
+               "    \"generated_at\": \"2025-07-22T10:36:30.974926\",\n"
+               "    \"target_size_mb\": 1,\n"
+               "    \"generator_version\": \"1.0\"\n"
+               "}");
+    JSON target_size_mb = *JSONObject_get(doc.object, S("target_size_mb"));
+    t_assert(*target_size_mb.integer == 1);
+    JSON generated_at = *JSONObject_get(doc.object, S("generated_at"));
+    t_assert(Str_equals(*generated_at.string, S("2025-07-22T10:36:30.974926")));
+
+    return 0;
+}
+
+i32 test_json_nested_object() {
+    Arena perm = Arena_new(128e3);
+
+    JSON doc = JSON_parse(&perm, "{\"1\":{\"2\":{}}}");
+
+    JSON lvl_1 = *JSONObject_get(doc.object, S("1"));
+    t_assert(lvl_1.object != 0);
+    JSON lvl_2 = *JSONObject_get(lvl_1.object, S("2"));
+    t_assert(lvl_2.object != 0);
+    return 0;
+}
