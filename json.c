@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <ctype.h>
-#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -10,6 +9,7 @@
 
 #include "json.h"
 #include "string.h"
+#include "types.h"
 
 JSONObject *JSONObject_new(Arena *a) {
     JSONObject *object = new(a, JSONObject, 1);
@@ -59,23 +59,34 @@ typedef struct {
 parse_any_result parse_any(Arena *a, byte *src, uptr pos);
 
 typedef struct {
-    i32 *value;
+    i32 *integer;
+    f32 *floating;
     uptr pos;
-} parse_integer_result;
+} parse_number_result;
 
-parse_integer_result parse_integer(Arena *a, byte *src, uptr start_pos) {
-    byte ints[16];
-    i32 i = 0;
-    while (isdigit(src[start_pos + i])) {
-        i32 val = (src[start_pos + i] - '0');
-        ints[i] = val;
-        i++;
+parse_number_result parse_number(Arena *a, byte *src, uptr start_pos) {
+    parse_number_result result = {.pos = start_pos};
+    i32 integer = 0;
+    while (isdigit(src[result.pos])) {
+        integer = integer * 10 + (src[result.pos] - '0');
+        result.pos++;
     }
-    i32 *result = new(a, int, 1);
-    for (i32 j = 0; j < i; j++) {
-        *result += ints[j] * pow(10, (i - j - 1));
+    if (src[result.pos] != '.') {
+        result.integer = new(a, int, 1);
+        *result.integer = integer;
+        return result;
     }
-    return (parse_integer_result){result, start_pos + i};
+    result.pos++;
+    f32 fractional_part = 0.0;
+    f32 decimal_place = 0.1;
+    while (isdigit(src[result.pos])) {
+        fractional_part += (src[result.pos] - '0') * decimal_place;
+        decimal_place *= 0.1;
+        result.pos++;
+    }
+    result.floating = new(a, f32, 1);
+    *result.floating = (f32)integer + fractional_part;
+    return result;
 }
 
 uptr absorb_whitespaces(byte *src, uptr start_pos) {
@@ -176,9 +187,12 @@ parse_any_result parse_any(Arena *a, byte *src, uptr start_pos) {
     parse_any_result result = {.pos = start_pos};
     result.value = new(a, JSON, 1);
     if (isdigit(src[result.pos])) {
-        parse_integer_result int_result = parse_integer(a, src, result.pos);
-        result.value->integer = int_result.value;
-        result.pos = int_result.pos;
+        parse_number_result number_result = parse_number(a, src, result.pos);
+        if (number_result.integer != 0)
+            result.value->integer = number_result.integer;
+        else if (number_result.floating != 0)
+            result.value->floating = number_result.floating;
+        result.pos = number_result.pos;
     } else if (src[result.pos] == '[') {
         parse_array_result array_result = parse_array(a, src, result.pos);
         result.value->array = array_result.items;

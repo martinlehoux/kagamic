@@ -12,6 +12,7 @@ typedef struct {
 typedef struct {
     i32 *boolean;
     i32 *integer;
+    f32 *floating;
     Vec *array; // Vec<JSON>
     Str *string;
     JSONObject *object;
