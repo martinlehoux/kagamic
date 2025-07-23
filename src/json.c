@@ -1,5 +1,3 @@
-#include "json.h"
-
 #include <assert.h>
 #include <ctype.h>
 #include <stddef.h>
@@ -7,9 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "json.h"
-#include "string.h"
-#include "types.h"
+#include "../include/json.h"
+#include "../include/str.h"
+#include "../include/types.h"
 
 JSONObject *JSONObject_new(Arena *a) {
     JSONObject *object = new(a, JSONObject, 1);

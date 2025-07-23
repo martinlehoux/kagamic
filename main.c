@@ -3,9 +3,9 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "json.h"
-#include "memory.h"
-#include "types.h"
+#include "include/json.h"
+#include "include/memory.h"
+#include "include/types.h"
 
 // Load entire file into memory
 byte *load_file(const char *filename, size *file_size) {

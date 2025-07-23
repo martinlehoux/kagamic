@@ -1,5 +1,5 @@
-#include "json.h"
-#include "testing.h"
+#include "../include/json.h"
+#include "../include/testing.h"
 
 i32 test_json_integer() {
     Arena perm = Arena_new(128e3);

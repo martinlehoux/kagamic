@@ -1,5 +1,5 @@
-#include "string.h"
-#include "testing.h"
+#include "../include/string.h"
+#include "../include/testing.h"
 
 i32 test_string_literal_equality() {
     t_assert(Str_equals(S("Bonjour"), S("Bonjour")));

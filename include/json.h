@@ -1,8 +1,7 @@
-#ifndef JSON_H
-#define JSON_H
-#include "memory.h"
-#include "string.h"
-#include "vec.h"
+#pragma once
+#include "../include/memory.h"
+#include "../include/str.h"
+#include "../include/vec.h"
 
 typedef struct {
     Vec keys;   // Vec<Str>
@@ -33,4 +32,3 @@ JSON *JSONObject_get(JSONObject obj, Str key);
 i32 JSON_fprint(FILE *w, JSON json);
 JSON JSON_parse(Arena *a, byte *src);
 JSON JSON_Int(Arena *a, i32 val);
-#endif

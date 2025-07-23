@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "memory.h"
-#include "types.h"
+#include "../include/memory.h"
+#include "../include/types.h"
 
 Arena Arena_new(size cap) {
     Arena a = {0};

@@ -1,10 +1,9 @@
-#include "string.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "memory.h"
+#include "../include/memory.h"
+#include "../include/str.h"
 
 // Returns 1 if strings are equal, 0 otherwise
 i32 Str_equals(Str a, Str b) {

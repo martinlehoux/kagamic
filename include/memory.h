@@ -1,8 +1,8 @@
+#pragma once
 #include <stddef.h>
 
-#ifndef MEMORY_H
 #include "types.h"
-#define MEMORY_H
+
 typedef struct {
     size cap;
     byte *beg;
@@ -14,4 +14,3 @@ Arena Arena_new(size cap);
 void *alloc(Arena *a, size count, size tsize, size align);
 size Arena_get_used(Arena a);
 void Arena_reset(Arena *a);
-#endif

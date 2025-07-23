@@ -1,5 +1,5 @@
-#include "testing.h"
-#include "vec.h"
+#include "../include/testing.h"
+#include "../include/vec.h"
 
 i32 test_int_vec() {
     Arena perm = Arena_new(128e3);

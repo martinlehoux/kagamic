@@ -7,8 +7,6 @@
 - Benchmark 100MB file
   - json.loads: 526 ms ± 77 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
   - self: 348 ms (mean of 7 runs, 1 loop each). 2079 MB/s
-- More modern include pragma (once)
-- File structure
 - Static functions for private?
 - `valgrind --leak-check=full ./your_program`
 - assert with error msg?
