@@ -89,8 +89,7 @@ i32 JSON_fprint(FILE *w, JSON json) {
         for (size i = 0; i < json.as.array.len; i++) {
             JSON value = *Vec_get(json.as.array, JSON, i);
             JSON_fprint(w, value);
-            if (i < json.as.array.len - 1)
-                fprintf(w, ", ");
+            if (i < json.as.array.len - 1) fprintf(w, ", ");
         }
         fprintf(w, "]");
         return 0;
@@ -103,8 +102,7 @@ i32 JSON_fprint(FILE *w, JSON json) {
             fprintf(w, "\": ");
             JSON value = *Vec_get(json.as.object.values, JSON, i);
             JSON_fprint(w, value);
-            if (i < json.as.object.len - 1)
-                fprintf(w, ", ");
+            if (i < json.as.object.len - 1) fprintf(w, ", ");
         }
         fprintf(w, "}");
         return 0;
@@ -230,14 +228,10 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos) {
 
 parse_result parse_any(Arena *a, byte *src, uptr pos) {
     pos = absorb_whitespaces(src, pos);
-    if (isdigit(src[pos]))
-        return parse_number(src, pos);
-    if (src[pos] == '[')
-        return parse_array(a, src, pos);
-    if (src[pos] == '"')
-        return parse_string(a, src, pos);
-    if (src[pos] == '{')
-        return parse_object(a, src, pos);
+    if (isdigit(src[pos])) return parse_number(src, pos);
+    if (src[pos] == '[') return parse_array(a, src, pos);
+    if (src[pos] == '"') return parse_string(a, src, pos);
+    if (src[pos] == '{') return parse_object(a, src, pos);
     if (memcmp(src + pos, "true", 4) == 0) {
         parse_result result = {0};
         result.value = JSON_boolean(true);

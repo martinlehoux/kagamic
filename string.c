@@ -24,8 +24,7 @@ Str Str_copy(Arena *a, byte *data, size len) {
     Str str = {0};
     str.len = len;
     str.data = new(a, byte, len);
-    if (str.len)
-        memcpy(str.data, data, len);
+    if (str.len) memcpy(str.data, data, len);
     return str;
 }
 
