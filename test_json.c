@@ -167,3 +167,41 @@ i32 test_json_nested_object() {
     t_assert(lvl_2.type == JSON_OBJECT);
     return 0;
 }
+
+i32 test_json_complex_multiline() {
+    Arena perm = Arena_new(128e3);
+    JSON doc =
+        JSON_parse(&perm, "{\n"
+                          "    \"id\": 819228,\n"
+                          "    \"username\": \"rCrRv4PRnUNuAy\",\n"
+                          "    \"email\": \"xzbwrzj@zwod.com\",\n"
+                          "    \"first_name\": \"4WH7g7PsOEm5\",\n"
+                          "    \"last_name\": \"6ulndxUgjbIayl\",\n"
+                          "    \"age\": 30,\n"
+                          "    \"phone\": \"+1-529-712-3931\",\n"
+                          "    \"is_active\": false,\n"
+                          "    \"balance\": 9347.49,\n"
+                          "    \"tags\": [\n"
+                          "      \"TWvZi0\",\n"
+                          "      \"pM0TPv9X\"\n"
+                          "    ],\n"
+                          "    \"metadata\": {\n"
+                          "      \"last_login\": \"2024-06-13T21:22:32Z\",\n"
+                          "      \"login_count\": 245,\n"
+                          "      \"preferences\": {\n"
+                          "        \"theme\": \"auto\",\n"
+                          "        \"notifications\": true,\n"
+                          "        \"language\": \"en\"\n"
+                          "      }\n"
+                          "    }\n"
+                          "  }");
+
+    JSON id = *JSONObject_get(doc.as.object, S("id"));
+    t_assert(id.as.integer == 819228);
+    JSON metadata = *JSONObject_get(doc.as.object, S("metadata"));
+    JSON preferences = *JSONObject_get(metadata.as.object, S("preferences"));
+    JSON theme = *JSONObject_get(preferences.as.object, S("theme"));
+    t_assert(Str_equals(theme.as.string, S("auto")));
+
+    return 0;
+}
