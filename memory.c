@@ -18,10 +18,13 @@ Arena Arena_new(size cap) {
 // alloc_align(3)))
 void *alloc(Arena *a, size count, size tsize, size align) {
     size padding = -(uptr)a->beg & (align - 1);
-    assert(count < (a->end - a->beg - padding) / tsize);
-    void *cursor = a->beg + padding;
-    a->beg += padding + count * tsize;
-    return memset(cursor, 0, count * tsize);
+    byte *beg = a->beg + padding;
+    size alloc_size = count * tsize;
+    assert(beg + alloc_size < a->end);
+    a->beg = beg + alloc_size;
+    return memset(beg, 0, count * tsize);
 }
+
+void Arena_reset(Arena *a) { a->beg = a->end - a->cap; }
 
 size Arena_get_used(Arena a) { return a.cap - (a.end - a.beg); }
