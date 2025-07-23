@@ -15,3 +15,4 @@
 ## Resources
 
 - https://nullprogram.com/blog/2023/10/08/
+- https://danielchasehooper.com/posts/typechecked-generic-c-data-structures/
