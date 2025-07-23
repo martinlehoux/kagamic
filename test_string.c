@@ -10,10 +10,10 @@ i32 test_string_copy() {
     Arena perm = Arena_new(128e3);
     Str src = S("Hello");
 
-    Str *cpy = Str_copy(&perm, src.data, src.len);
+    Str cpy = Str_copy(&perm, src.data, src.len);
 
-    t_assert(Str_equals(src, *cpy));
-    t_assert_equal(Arena_get_used(perm), 21);
+    t_assert(Str_equals(src, cpy));
+    t_assert_equal(Arena_get_used(perm), 5);
 
     return 0;
 }

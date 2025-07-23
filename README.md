@@ -11,6 +11,8 @@
 - Static functions for private?
 - JSON: tagged union for memory, remove pointer and use bitflag
 - `valgrind --leak-check=full ./your_program`
+- assert with error msg?
+- negative numbers
 
 ## Resources
 

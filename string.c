@@ -20,12 +20,12 @@ u64 Str_hash64(Str s) {
     return h;
 }
 
-Str *Str_copy(Arena *a, byte *data, size len) {
-    Str *str = new(a, Str, 1);
-    str->len = len;
-    str->data = new(a, byte, len);
-    if (str->len)
-        memcpy(str->data, data, len);
+Str Str_copy(Arena *a, byte *data, size len) {
+    Str str = {0};
+    str.len = len;
+    str.data = new(a, byte, len);
+    if (str.len)
+        memcpy(str.data, data, len);
     return str;
 }
 

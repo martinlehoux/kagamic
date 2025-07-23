@@ -15,6 +15,6 @@ typedef struct {
 } Str;
 i32 Str_equals(Str a, Str b);
 u64 Str_hash64(Str s);
-Str *Str_copy(Arena *a, byte *data, size len);
+Str Str_copy(Arena *a, byte *data, size len);
 i32 Str_fprint(FILE *w, Str s);
 #endif

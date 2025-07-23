@@ -9,16 +9,27 @@ typedef struct {
     Vec values; // Vec<JSON>
     size len;
 } JSONObject;
+typedef enum {
+    JSON_NULL,
+    JSON_BOOL,
+    JSON_INTEGER,
+    JSON_FLOAT,
+    JSON_STRING,
+    JSON_ARRAY,
+    JSON_OBJECT
+} JSONType;
 typedef struct {
-    i32 *boolean;
-    i32 *integer;
-    f32 *floating;
-    Vec *array; // Vec<JSON>
-    Str *string;
-    void *null;
-    JSONObject *object;
+    JSONType type;
+    union {
+        bool boolean;
+        i32 integer;
+        f32 floating;
+        Vec array; // Vec<JSON>
+        Str string;
+        JSONObject object;
+    } as;
 } JSON;
-JSON *JSONObject_get(JSONObject *obj, Str key);
+JSON *JSONObject_get(JSONObject obj, Str key);
 i32 JSON_fprint(FILE *w, JSON json);
 JSON JSON_parse(Arena *a, byte *src);
 JSON JSON_Int(Arena *a, i32 val);
