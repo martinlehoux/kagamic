@@ -11,6 +11,7 @@
 - `valgrind --leak-check=full ./your_program`
 - assert with error msg?
 - negative numbers
+- web server, Json parsing, struct codegen
 
 ## Resources
 
