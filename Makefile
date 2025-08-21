@@ -10,6 +10,10 @@ release:
 	cmake -DCMAKE_BUILD_TYPE=Release ..; \
 	make;
 
+profile: release
+	valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./Release/main
+	kcachegrind callgrind.out
+
 test:
 	fish generate.fish;
 	make debug;

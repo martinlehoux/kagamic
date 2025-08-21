@@ -1,3 +1,5 @@
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -6,6 +8,7 @@
 #include "include/json.h"
 #include "include/memory.h"
 #include "include/types.h"
+#include "include/vec.h"
 
 // Load entire file into memory
 byte *load_file(const char *filename, size *file_size) {
@@ -59,9 +62,8 @@ void run_benchmark(const char *filename, i32 iterations) {
     printf("Running %d iterations...\n\n", iterations);
 
     // Statistics tracking
-    double total_time = 0.0;
-    double min_time = 1e9;
-    double max_time = 0.0;
+    f32 timings[iterations] = {};
+    f32 timing_avg = 0.0;
 
     Arena arena = Arena_new(8e9);
 
@@ -73,11 +75,8 @@ void run_benchmark(const char *filename, i32 iterations) {
         JSON result = JSON_parse(&arena, content);
         double end_time = get_time_ns();
 
-        double elapsed = end_time - start_time;
-        total_time += elapsed;
-
-        if (elapsed < min_time) min_time = elapsed;
-        if (elapsed > max_time) max_time = elapsed;
+        timings[i] = end_time - start_time;
+        timing_avg += timings[i];
 
         size new_used = Arena_get_used(arena);
         size allocated = new_used - used;
@@ -90,32 +89,26 @@ void run_benchmark(const char *filename, i32 iterations) {
     }
 
     // Calculate statistics
-    double avg_time = total_time / iterations;
-    double avg_time_ms = avg_time / 1000000.0;
-    double min_time_ms = min_time / 1000000.0;
-    double max_time_ms = max_time / 1000000.0;
-
-    // Calculate throughput
+    timing_avg /= iterations;
+    f32 timing_var = 0.0;
+    for (i32 i = 0; i < iterations; i++) {
+        timing_var += (timings[i] - timing_avg) * (timings[i] - timing_avg);
+    }
+    timing_var /= iterations;
+    f32 timing_stddev = sqrt(timing_var);
     double avg_throughput_mb_s =
-        (file_size / (1024.0 * 1024.0)) / (avg_time / 1000000000.0);
+        (file_size / (1024.0 * 1024.0)) / (timing_avg / 1000000000.0);
 
     printf("\n=== Benchmark Results ===\n");
-    printf("Iterations:     %d\n", iterations);
-    printf("File size:      %zu bytes (%.2f MB)\n", file_size,
-           file_size / (1024.0 * 1024.0));
-    printf("\nTiming (milliseconds):\n");
-    printf("  Average:      %.3f ms\n", avg_time_ms);
-    printf("  Minimum:      %.3f ms\n", min_time_ms);
-    printf("  Maximum:      %.3f ms\n", max_time_ms);
-    printf("  Range:        %.3f ms\n", max_time_ms - min_time_ms);
-    printf("\nThroughput:\n");
-    printf("  Average:      %.2f MB/s\n", avg_throughput_mb_s);
-    printf("  Parse rate:   %.0f parses/second\n", 1000.0 / avg_time_ms);
+    printf("%3.f ms ± %3.f ms per loop (mean ± std. dev. of %d runs, 1 loop "
+           "each)\n",
+           timing_avg / 1000000, timing_stddev / 1000000, iterations);
+    printf("Throughput: %.2f MB/s\n", avg_throughput_mb_s);
 }
 
 i32 main(i32 argc, char *argv[]) {
     const char *filename = "out.json";
-    i32 iterations = 7;
+    i32 iterations = 1;
 
     // Parse command line arguments
     if (argc >= 2) {
