@@ -24,7 +24,7 @@ typedef struct {
         i32 integer;
         f32 floating;
         Vec array; // Vec<JSON>
-        Str string;
+        StrView string;
         JSONObject object;
     } as;
 } JSON;

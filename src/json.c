@@ -38,7 +38,7 @@ JSON JSON_array(Vec items) {
     return json;
 }
 
-JSON JSON_string(Str value) {
+JSON JSON_string(StrView value) {
     JSON json = {0};
     json.type = JSON_STRING;
     json.as.string = value;
@@ -72,7 +72,7 @@ i32 JSON_fprint(FILE *w, JSON json) {
     switch (json.type) {
     case JSON_STRING:
         fprintf(w, "\"");
-        Str_fprint(w, json.as.string);
+        StrView_fprint(w, json.as.string);
         return fprintf(w, "\"");
     case JSON_INTEGER:
         return fprintf(w, "%d", json.as.integer);
@@ -182,8 +182,8 @@ parse_result parse_string(Arena *a, byte *src, uptr start_pos) {
         result.pos++;
     }
     assert(src[result.pos] == '"');
-    result.value = JSON_string(
-        Str_copy(a, &src[start_pos + 1], result.pos - start_pos - 1));
+    result.value =
+        JSON_string(Str_view(&src[start_pos + 1], result.pos - start_pos - 1));
     result.pos++;
 
     return result;

@@ -22,9 +22,12 @@ void *alloc(Arena *a, size count, size tsize, size align) {
     size alloc_size = count * tsize;
     assert(beg + alloc_size < a->end);
     a->beg = beg + alloc_size;
-    return memset(beg, 0, count * tsize);
+    return beg;
 }
 
-void Arena_reset(Arena *a) { a->beg = a->end - a->cap; }
+void Arena_reset(Arena *a) {
+    a->beg = a->end - a->cap;
+    memset(a->beg, 0, a->end - a->beg);
+}
 
 size Arena_get_used(Arena a) { return a.cap - (a.end - a.beg); }

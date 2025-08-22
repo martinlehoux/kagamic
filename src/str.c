@@ -30,3 +30,14 @@ Str Str_copy(Arena *a, byte *data, size len) {
 i32 Str_fprint(FILE *w, Str s) {
     return fprintf(w, "%.*s", (i32)s.len, s.data);
 }
+
+StrView Str_view(byte *data, size len) {
+    StrView str = {0};
+    str.len = len;
+    str.data = data;
+    return str;
+}
+
+i32 StrView_fprint(FILE *w, StrView s) {
+    return fprintf(w, "%.*s", (i32)s.len, s.data);
+}
