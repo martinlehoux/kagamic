@@ -5,3 +5,4 @@ Release/
 
 test.c
 out.json
+callgrind.out

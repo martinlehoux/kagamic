@@ -41,3 +41,5 @@ StrView Str_view(byte *data, size len) {
 i32 StrView_fprint(FILE *w, StrView s) {
     return fprintf(w, "%.*s", (i32)s.len, s.data);
 }
+
+Str StrView_copy(Arena *a, StrView s) { return Str_copy(a, s.data, s.len); }

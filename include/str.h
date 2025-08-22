@@ -23,3 +23,4 @@ i32 Str_fprint(FILE *w, Str s);
 
 StrView Str_view(byte *data, size len);
 i32 StrView_fprint(FILE *w, StrView s);
+Str StrView_copy(Arena *a, StrView s);

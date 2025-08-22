@@ -54,9 +54,7 @@ i32 test_json_nested_array() {
     JSON val_1 = *Vec_get(sub_array.as.array, JSON, 0);
     t_assert(val_1.as.integer == 1);
     JSON val_2 = *Vec_get(sub_array.as.array, JSON, 1);
-    Str str = val_2.as.string;
-    Str expected = S("abc");
-    t_assert(Str_equals(str, expected));
+    t_assert(Str_equals(StrView_copy(&perm, val_2.as.string), S("abc")));
     t_assert_equal(Arena_get_used(perm), 387);
 
     return 0;
@@ -67,7 +65,7 @@ i32 test_json_string() {
 
     JSON js = JSON_parse(&perm, "\"abc\"");
 
-    t_assert(Str_equals(js.as.string, S("abc")));
+    t_assert(Str_equals(StrView_copy(&perm, js.as.string), S("abc")));
     t_assert_equal(Arena_get_used(perm), 3);
 
     return 0;
@@ -92,8 +90,8 @@ i32 test_json_object() {
     t_assert_equal(doc.as.object.len, 1);
     t_assert(Str_equals(*Vec_get(doc.as.object.keys, Str, 0), S("key")));
     JSON value = *JSONObject_get(doc.as.object, S("key"));
-    t_assert(Str_equals(value.as.string, S("value")));
-    t_assert_equal(Arena_get_used(perm), 232);
+    t_assert(Str_equals(StrView_copy(&perm, value.as.string), S("value")));
+    t_assert_equal(Arena_get_used(perm), 229);
 
     return 0;
 }
@@ -107,7 +105,7 @@ i32 test_json_boolean() {
     t_assert(a.as.boolean == true);
     JSON b = *JSONObject_get(doc.as.object, S("b"));
     t_assert(b.as.boolean == false);
-    t_assert_equal(Arena_get_used(perm), 226);
+    t_assert_equal(Arena_get_used(perm), 224);
 
     return 0;
 }
@@ -150,8 +148,8 @@ i32 test_json_multiline() {
     JSON target_size_mb = *JSONObject_get(doc.as.object, S("target_size_mb"));
     t_assert(target_size_mb.as.integer == 1);
     JSON generated_at = *JSONObject_get(doc.as.object, S("generated_at"));
-    t_assert(
-        Str_equals(generated_at.as.string, S("2025-07-22T10:36:30.974926")));
+    t_assert(Str_equals(StrView_copy(&perm, generated_at.as.string),
+                        S("2025-07-22T10:36:30.974926")));
 
     return 0;
 }
@@ -201,7 +199,7 @@ i32 test_json_complex_multiline() {
     JSON metadata = *JSONObject_get(doc.as.object, S("metadata"));
     JSON preferences = *JSONObject_get(metadata.as.object, S("preferences"));
     JSON theme = *JSONObject_get(preferences.as.object, S("theme"));
-    t_assert(Str_equals(theme.as.string, S("auto")));
+    t_assert(Str_equals(StrView_copy(&perm, theme.as.string), S("auto")));
 
     return 0;
 }
