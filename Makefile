@@ -26,4 +26,3 @@ format:
 check:
 	make test
 	clang-format -i --dry-run src/*.c include/*.h tests/*.c *.c --fail-on-incomplete-format
-	! rg 't_assert\(.*=='

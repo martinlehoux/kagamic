@@ -2,13 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define t_assert(fact)                                                         \
-    if (!(fact)) {                                                             \
-        fprintf(stderr, "Assertion failed: %s at %s:%d in %s()\n", #fact,      \
-                __FILE__, __LINE__, __func__);                                 \
-        return 1;                                                              \
-    }
-
 #define t_assert_equal(a, b)                                                   \
     if (!(a == b)) {                                                           \
         fprintf(stderr,                                                        \
@@ -25,10 +18,11 @@
         return 1;                                                              \
     }
 
-#define t_assert_strequal(a, b)                                                  \
-    if ((a.len != b.len) || (a.len && memcmp(a.data, b.data, a.len))) {                                    \
+#define t_assert_strequal(a, b)                                                \
+    if ((a.len != b.len) || (a.len && memcmp(a.data, b.data, a.len))) {        \
         fprintf(stderr,                                                        \
-                "Assertion failed: %.*s (%s) != %.*s (%s) at %s:%d in %s()\n", (i32)a.len, a.data,  \
-                #a, (i32)b.len, b.data, #b, __FILE__, __LINE__, __func__);                      \
+                "Assertion failed: %.*s (%s) != %.*s (%s) at %s:%d in %s()\n", \
+                (i32)a.len, a.data, #a, (i32)b.len, b.data, #b, __FILE__,      \
+                __LINE__, __func__);                                           \
         return 1;                                                              \
     }

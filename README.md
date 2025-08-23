@@ -2,14 +2,13 @@
 
 ## TODO
 
-- Vec_get not safe, I made a type mistake. And should be more efficient for loops
+- Vec_get not safe, I made a type mistake. And should be more efficient for loops. maybe i don't use that many vec and i can define the types manually
 - `valgrind --leak-check=full ./your_program`
 - web server, Json parsing, struct codegen
 - assert not in release
 - python based generate
 - test helpers to load json files
 - add test with backspaces weird
-- remove t_assert
 
 ## Benchmarks
 

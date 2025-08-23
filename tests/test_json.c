@@ -90,7 +90,8 @@ i32 test_json_object() {
     JSON doc = JSON_parse_raw(&perm, "{\"key\": \"value\"}");
 
     t_assert_equal(doc.as.object.len, 1);
-    t_assert(Str_equals(*Vec_get(doc.as.object.keys, Str, 0), S("key")));
+    StrView key = *Vec_get(doc.as.object.keys, StrView, 0);
+    t_assert_strequal(key, S("key"));
     JSON value = *JSONObject_get(doc.as.object, S("key"));
     t_assert_strequal(value.as.string, S("value"));
     t_assert_equal(Arena_get_used(perm), 672);

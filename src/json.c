@@ -14,7 +14,7 @@
 JSONObject *JSONObject_new(Arena *a) {
     JSONObject *object = new(a, JSONObject, 1);
     object->len = 0;
-    object->keys = Vec_new(a, Str, 2);
+    object->keys = Vec_new(a, StrView, 2);
     object->values = Vec_new(a, JSON, 2);
     return object;
 }
@@ -96,9 +96,9 @@ i32 JSON_fprint(FILE *w, JSON json) {
     case JSON_OBJECT:
         fprintf(w, "{");
         for (size i = 0; i < json.as.object.len; i++) {
-            Str key = *Vec_get(json.as.object.keys, Str, i);
+            StrView key = *Vec_get(json.as.object.keys, StrView, i);
             fprintf(w, "\"");
-            Str_fprint(w, key);
+            StrView_fprint(w, key);
             fprintf(w, "\": ");
             JSON value = *Vec_get(json.as.object.values, JSON, i);
             JSON_fprint(w, value);
@@ -217,7 +217,7 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
     parse_result result = {0};
     result.pos = absorb_whitespaces(src, start_pos + 1, max_pos);
     size len = 0;
-    Vec keys = Vec_new(a, Str, 6);
+    Vec keys = Vec_new(a, StrView, 6);
     Vec values = Vec_new(a, JSON, 6);
     if (src[result.pos] == '}') {
         result.pos++;
