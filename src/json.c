@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <immintrin.h>
+#include <stdbit.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -185,15 +186,15 @@ parse_result parse_string(byte *src, uptr start_pos, uptr max_pos) {
     result.pos = start_pos + 1;
 
     // SIMD optimization: process 32 bytes at a time using AVX2
-    byte_32 quote_mask = _mm256_set1_epi8('"');
+    bytex32 quote_mask = _mm256_set1_epi8('"');
 
     for (; result.pos + 32 <= max_pos; result.pos += 32) {
-        byte_32 chunk = _mm256_loadu_si256((byte_32 *)(src + result.pos));
-        byte_32 cmp = _mm256_cmpeq_epi8(chunk, quote_mask);
+        bytex32 chunk = _mm256_loadu_si256((bytex32 *)(src + result.pos));
+        bytex32 cmp = _mm256_cmpeq_epi8(chunk, quote_mask);
         i32 mask = _mm256_movemask_epi8(cmp);
 
         if (mask != 0) {
-            result.pos += __builtin_ctz(mask);
+            result.pos += stdc_trailing_zeros_ui(mask);
             if (src[result.pos - 1] != '\\') break;
         };
     }

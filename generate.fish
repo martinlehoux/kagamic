@@ -13,12 +13,11 @@ for f in $fs;
     for func in $funcs;
         set pfunc (echo $func | awk '{match($0, /test_[^(]+/); print substr($0, RSTART, RLENGTH)}');
         echo "Found $pfunc in $f";
-        echo "  test($pfunc);" >> test.c
+        echo "    test($pfunc);" >> test.c
     end;
 end;
 echo "
-  printf(\"Success: %d, Failures: %d\n\", success, failures);
+    printf(\"Success: %d, Failures: %d\n\", success, failures);
 
-  return failures;
-}
-" >> test.c;
+    return failures;
+}" >> test.c;

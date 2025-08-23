@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30.5)
 project(kagamic VERSION 0.1 LANGUAGES C)
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
 
 file(GLOB SOURCES "src/*.c")
 file(GLOB TEST_SOURCES "test/*.c")

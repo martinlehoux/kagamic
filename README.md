@@ -3,11 +3,13 @@
 ## TODO
 
 - Vec_get not safe, I made a type mistake. And should be more efficient for loops
-- Fix tests in release
-- Static functions for private?
 - `valgrind --leak-check=full ./your_program`
 - web server, Json parsing, struct codegen
 - assert not in release
+- python based generate
+- test helpers to load json files
+- add test with backspaces weird
+- remove t_assert
 
 ## Benchmarks
 
