@@ -62,7 +62,7 @@ void run_benchmark(const char *filename, i32 iterations) {
     printf("Running %d iterations...\n\n", iterations);
 
     // Statistics tracking
-    f32 timings[iterations] = {};
+    f32 timings[iterations];
     f32 timing_avg = 0.0;
 
     Arena arena = Arena_new(8e9);
@@ -72,7 +72,7 @@ void run_benchmark(const char *filename, i32 iterations) {
         Arena_reset(&arena);
         size used = Arena_get_used(arena);
         double start_time = get_time_ns();
-        JSON result = JSON_parse(&arena, content, file_size);
+        JSON_parse(&arena, content, file_size);
         double end_time = get_time_ns();
 
         timings[i] = end_time - start_time;
@@ -80,7 +80,7 @@ void run_benchmark(const char *filename, i32 iterations) {
 
         size new_used = Arena_get_used(arena);
         size allocated = new_used - used;
-        printf("Iteration %d: %td MB allocated\n", i + 1,
+        printf("Iteration %d: %3.f ms\t%td MB\n", i + 1, timings[i] / 1000000,
                allocated / 1024 / 1024);
 
         if ((i + 1) % 100 == 0) {

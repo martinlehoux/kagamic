@@ -57,7 +57,7 @@ i32 test_json_nested_array() {
     t_assert(val_1.as.integer == 1);
     JSON val_2 = *Vec_get(sub_array.as.array, JSON, 1);
     t_assert(Str_equals(StrView_copy(&perm, val_2.as.string), S("abc")));
-    t_assert_equal(Arena_get_used(perm), 387);
+    t_assert_equal(Arena_get_used(perm), 1155);
 
     return 0;
 }
@@ -79,7 +79,7 @@ i32 test_json_empty_object() {
     JSON doc = JSON_parse_raw(&perm, "{}");
 
     t_assert_equal(doc.as.object.len, 0);
-    t_assert_equal(Arena_get_used(perm), 224);
+    t_assert_equal(Arena_get_used(perm), 672);
 
     return 0;
 }
@@ -93,7 +93,7 @@ i32 test_json_object() {
     t_assert(Str_equals(*Vec_get(doc.as.object.keys, Str, 0), S("key")));
     JSON value = *JSONObject_get(doc.as.object, S("key"));
     t_assert(Str_equals(StrView_copy(&perm, value.as.string), S("value")));
-    t_assert_equal(Arena_get_used(perm), 229);
+    t_assert_equal(Arena_get_used(perm), 677);
 
     return 0;
 }
@@ -107,7 +107,7 @@ i32 test_json_boolean() {
     t_assert(a.as.boolean == true);
     JSON b = *JSONObject_get(doc.as.object, S("b"));
     t_assert(b.as.boolean == false);
-    t_assert_equal(Arena_get_used(perm), 224);
+    t_assert_equal(Arena_get_used(perm), 672);
 
     return 0;
 }
@@ -121,7 +121,7 @@ i32 test_json_float() {
     t_assert_fequal(first.as.floating, 1.2);
     JSON second = *Vec_get(doc.as.array, JSON, 1);
     t_assert_fequal(second.as.floating, 2.3);
-    t_assert_equal(Arena_get_used(perm), 192);
+    t_assert_equal(Arena_get_used(perm), 576);
 
     return 0;
 }
@@ -133,7 +133,7 @@ i32 test_json_null() {
     t_assert_equal(doc.as.array.len, 1);
     JSON first = *Vec_get(doc.as.array, JSON, 0);
     t_assert(first.type == JSON_NULL);
-    t_assert_equal(Arena_get_used(perm), 192);
+    t_assert_equal(Arena_get_used(perm), 576);
 
     return 0;
 }

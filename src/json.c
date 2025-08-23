@@ -161,7 +161,7 @@ parse_result parse_array(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
         result.pos++;
         return result;
     }
-    Vec items = Vec_new(a, JSON, 2);
+    Vec items = Vec_new(a, JSON, 6);
     for (;;) {
         result.pos = absorb_whitespaces(src, result.pos, max_pos);
         parse_result item_result = parse_any(a, src, result.pos, max_pos);
@@ -216,8 +216,8 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
     parse_result result = {0};
     result.pos = absorb_whitespaces(src, start_pos + 1, max_pos);
     size len = 0;
-    Vec keys = Vec_new(a, Str, 2);
-    Vec values = Vec_new(a, JSON, 2);
+    Vec keys = Vec_new(a, Str, 6);
+    Vec values = Vec_new(a, JSON, 6);
     if (src[result.pos] == '}') {
         result.pos++;
         result.value = JSON_object(len, keys, values);
