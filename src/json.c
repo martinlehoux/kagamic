@@ -145,9 +145,9 @@ parse_result parse_number(byte *src, uptr start_pos) {
     return result;
 }
 
-uptr absorb_whitespaces(byte *src, uptr start_pos) {
+uptr absorb_whitespaces(byte *src, uptr start_pos, uptr max_pos) {
     uptr pos = start_pos;
-    while (isspace(src[pos])) {
+    while (pos < max_pos && isspace(src[pos])) {
         pos++;
     }
     return pos;
@@ -163,10 +163,10 @@ parse_result parse_array(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
     }
     Vec items = Vec_new(a, JSON, 2);
     for (;;) {
-        result.pos = absorb_whitespaces(src, result.pos);
+        result.pos = absorb_whitespaces(src, result.pos, max_pos);
         parse_result item_result = parse_any(a, src, result.pos, max_pos);
         Vec_push(a, &items, &item_result.value);
-        result.pos = absorb_whitespaces(src, item_result.pos);
+        result.pos = absorb_whitespaces(src, item_result.pos, max_pos);
         if (src[result.pos] == ',') {
             result.pos++;
         } else {
@@ -187,17 +187,15 @@ parse_result parse_string(byte *src, uptr start_pos, uptr max_pos) {
     // SIMD optimization: process 32 bytes at a time using AVX2
     byte_32 quote_mask = _mm256_set1_epi8('"');
 
-    while (1) {
-        if (max_pos - result.pos < 32) break;
+    for (; result.pos + 32 <= max_pos; result.pos += 32) {
         byte_32 chunk = _mm256_loadu_si256((byte_32 *)(src + result.pos));
         byte_32 cmp = _mm256_cmpeq_epi8(chunk, quote_mask);
         i32 mask = _mm256_movemask_epi8(cmp);
 
-        if (_mm_popcnt_u32(mask) > 0) {
+        if (mask != 0) {
             result.pos += __builtin_ctz(mask);
-            break;
+            if (src[result.pos - 1] != '\\') break;
         };
-        result.pos += 32;
     }
 
     // Fall back to original byte-by-byte processing for the remaining bytes
@@ -216,7 +214,7 @@ parse_result parse_string(byte *src, uptr start_pos, uptr max_pos) {
 parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
     assert_parse(src[start_pos] == '{', "invalid object start", src, start_pos);
     parse_result result = {0};
-    result.pos = absorb_whitespaces(src, start_pos + 1);
+    result.pos = absorb_whitespaces(src, start_pos + 1, max_pos);
     size len = 0;
     Vec keys = Vec_new(a, Str, 2);
     Vec values = Vec_new(a, JSON, 2);
@@ -227,21 +225,21 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
     }
     for (;;) {
         parse_result key_result = parse_string(src, result.pos, max_pos);
-        result.pos = absorb_whitespaces(src, key_result.pos);
+        result.pos = absorb_whitespaces(src, key_result.pos, max_pos);
         assert_parse(src[result.pos] == ':', "invalid keyval delim", src,
                      result.pos);
-        result.pos = absorb_whitespaces(src, result.pos + 1);
+        result.pos = absorb_whitespaces(src, result.pos + 1, max_pos);
         parse_result value_result = parse_any(a, src, result.pos, max_pos);
         len++;
         assert(key_result.value.type == JSON_STRING,
                "invalid json type for key: %d", key_result.value.type);
         Vec_push(a, &keys, &key_result.value.as.string);
         Vec_push(a, &values, &value_result.value);
-        result.pos = absorb_whitespaces(src, value_result.pos);
+        result.pos = absorb_whitespaces(src, value_result.pos, max_pos);
         if (src[result.pos] != ',') {
             break;
         }
-        result.pos = absorb_whitespaces(src, result.pos + 1);
+        result.pos = absorb_whitespaces(src, result.pos + 1, max_pos);
     }
     assert_parse(src[result.pos] == '}', "invalid object end", src, result.pos);
     result.pos++;
@@ -250,7 +248,7 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
 }
 
 parse_result parse_any(Arena *a, byte *src, uptr pos, uptr max_pos) {
-    pos = absorb_whitespaces(src, pos);
+    pos = absorb_whitespaces(src, pos, max_pos);
     if (isdigit(src[pos]) || src[pos] == '-') return parse_number(src, pos);
     if (src[pos] == '[') return parse_array(a, src, pos, max_pos);
     if (src[pos] == '"') return parse_string(src, pos, max_pos);

@@ -20,6 +20,7 @@
 | no 0 mem alloc | 299 ms ± 8 ms per loop (mean ± std. dev. of 10 runs, 1 loop each)   |             |         |
 | Str_view       | 272 ms ± 6 ms per loop (mean ± std. dev. of 10 runs, 1 loop each)   | 330.46 MB/s | 1255 MB |
 | simd           | 254 ms ± 6 ms per loop (mean ± std. dev. of 10 runs, 1 loop each)   | 353.36 MB/s | 1255 MB |
+| negative       | 206 ms ± 6 ms per loop (mean ± std. dev. of 10 runs, 1 loop each)   | 436.25 MB/s | 1255MB  |
 
 ```c
 void print_bytes(byte_32 *data) {

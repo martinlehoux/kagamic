@@ -138,6 +138,16 @@ i32 test_json_null() {
     return 0;
 }
 
+i32 test_json_long_spaces() {
+    Arena perm = Arena_new(128e3);
+    JSON doc = JSON_parse_raw(
+        &perm, "{\t       \t       \t       \t       \t        }");
+
+    t_assert(doc.as.object.len == 0);
+
+    return 0;
+}
+
 i32 test_json_multiline() {
     Arena perm = Arena_new(128e3);
 
