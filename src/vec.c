@@ -5,7 +5,7 @@
 #include "../include/vec.h"
 
 Vec _Vec_new(Arena *a, size tsize, size cap, size align) {
-    assert(cap > 0);
+    assert(cap > 0, "negative cap");
     Vec v = {0};
     v.tsize = tsize;
     v.cap = cap;

@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 17)
 file(GLOB SOURCES "src/*.c")
 file(GLOB TEST_SOURCES "test/*.c")
 
-add_compile_options(-Wall -pedantic -Wextra -march=native)
+add_compile_options(-Wall -pedantic -Wextra -mavx2 -mno-avx512f)
 
 add_executable(main main.c ${SOURCES})
 target_link_libraries(main m)

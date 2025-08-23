@@ -11,8 +11,8 @@ release:
 profile:
 	mkdir -p Profile
 	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B Profile
-	cmake --build Release
-	valgrind --tool=callgrind --dump-instr=yes --callgrind-out-file=callgrind.out ./Release/main 100MB.json 1
+	cmake --build Profile
+	valgrind --tool=callgrind --dump-instr=yes --callgrind-out-file=callgrind.out ./Profile/main 100MB.json 1
 	kcachegrind callgrind.out
 
 test:

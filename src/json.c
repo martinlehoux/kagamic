@@ -121,14 +121,15 @@ parse_result parse_any(Arena *a, byte *src, uptr pos, uptr max_pos);
 
 parse_result parse_number(byte *src, uptr start_pos) {
     parse_result result = {0};
-    result.pos = start_pos;
+    bool is_neg = src[start_pos] == '-';
+    result.pos = start_pos + is_neg;
     i32 integer = 0;
     while (isdigit(src[result.pos])) {
         integer = integer * 10 + (src[result.pos] - '0');
         result.pos++;
     }
     if (src[result.pos] != '.') {
-        result.value = JSON_integer(integer);
+        result.value = JSON_integer(is_neg ? -integer : integer);
         return result;
     }
     result.pos++;
@@ -139,7 +140,8 @@ parse_result parse_number(byte *src, uptr start_pos) {
         decimal_place *= 0.1;
         result.pos++;
     }
-    result.value = JSON_float((f32)integer + fractional_part);
+    result.value = JSON_float(is_neg ? -(f32)integer - fractional_part
+                                     : (f32)integer + fractional_part);
     return result;
 }
 
@@ -177,7 +179,7 @@ parse_result parse_array(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
     return result;
 }
 
-parse_result parse_string(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
+parse_result parse_string(byte *src, uptr start_pos, uptr max_pos) {
     assert_parse(src[start_pos] == '"', "invalid string start", src, start_pos);
     parse_result result = {0};
     result.pos = start_pos + 1;
@@ -224,7 +226,7 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
         return result;
     }
     for (;;) {
-        parse_result key_result = parse_string(a, src, result.pos, max_pos);
+        parse_result key_result = parse_string(src, result.pos, max_pos);
         result.pos = absorb_whitespaces(src, key_result.pos);
         assert_parse(src[result.pos] == ':', "invalid keyval delim", src,
                      result.pos);
@@ -249,9 +251,9 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
 
 parse_result parse_any(Arena *a, byte *src, uptr pos, uptr max_pos) {
     pos = absorb_whitespaces(src, pos);
-    if (isdigit(src[pos])) return parse_number(src, pos);
+    if (isdigit(src[pos]) || src[pos] == '-') return parse_number(src, pos);
     if (src[pos] == '[') return parse_array(a, src, pos, max_pos);
-    if (src[pos] == '"') return parse_string(a, src, pos, max_pos);
+    if (src[pos] == '"') return parse_string(src, pos, max_pos);
     if (src[pos] == '{') return parse_object(a, src, pos, max_pos);
     if (memcmp(src + pos, "true", 4) == 0) {
         parse_result result = {0};

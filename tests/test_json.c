@@ -216,3 +216,15 @@ i32 test_json_complex_multiline() {
 
     return 0;
 }
+
+i32 test_negative_numbers() {
+    Arena perm = Arena_new(128e3);
+    JSON doc = JSON_parse_raw(&perm, "[-1, -2.5]");
+
+    JSON integer = *Vec_get(doc.as.array, JSON, 0);
+    t_assert(integer.as.integer == -1);
+    JSON floating = *Vec_get(doc.as.array, JSON, 1);
+    t_assert(floating.as.floating == -2.5);
+
+    return 0;
+}
