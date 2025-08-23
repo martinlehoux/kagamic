@@ -1,23 +1,24 @@
 debug:
-	mkdir -p Debug; \
-	cd Debug; \
-	cmake -DCMAKE_BUILD_TYPE=Debug ..; \
-	make;
+	mkdir -p Debug
+	cmake -DCMAKE_BUILD_TYPE=Debug -B Debug
+	cmake --build Debug
 
 release:
-	mkdir -p Release; \
-	cd Release; \
-	cmake -DCMAKE_BUILD_TYPE=Release ..; \
-	make;
+	mkdir -p Release
+	cmake -DCMAKE_BUILD_TYPE=Release -B Release
+	cmake --build Release
 
-profile: release
-	valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./Release/main
+profile:
+	mkdir -p Profile
+	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B Profile
+	cmake --build Release
+	valgrind --tool=callgrind --dump-instr=yes --callgrind-out-file=callgrind.out ./Release/main 100MB.json 1
 	kcachegrind callgrind.out
 
 test:
-	fish generate.fish;
-	make debug;
-	./Debug/test;
+	fish generate.fish
+	make debug
+	./Debug/test
 
 format:
 	clang-format -i src/*.c include/*.h tests/*.c *.c

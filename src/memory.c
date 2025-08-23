@@ -1,8 +1,8 @@
-#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/assert.h"
 #include "../include/memory.h"
 #include "../include/types.h"
 
@@ -20,7 +20,7 @@ void *alloc(Arena *a, size count, size tsize, size align) {
     size padding = -(uptr)a->beg & (align - 1);
     byte *beg = a->beg + padding;
     size alloc_size = count * tsize;
-    assert(beg + alloc_size < a->end);
+    assert(beg + alloc_size < a->end, "out of memory");
     a->beg = beg + alloc_size;
     return beg;
 }

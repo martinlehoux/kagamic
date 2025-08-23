@@ -1,10 +1,10 @@
-#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <time.h>
 
+#include "include/assert.h"
 #include "include/json.h"
 #include "include/memory.h"
 #include "include/types.h"
@@ -72,7 +72,7 @@ void run_benchmark(const char *filename, i32 iterations) {
         Arena_reset(&arena);
         size used = Arena_get_used(arena);
         double start_time = get_time_ns();
-        JSON result = JSON_parse(&arena, content);
+        JSON result = JSON_parse(&arena, content, file_size);
         double end_time = get_time_ns();
 
         timings[i] = end_time - start_time;
@@ -107,19 +107,15 @@ void run_benchmark(const char *filename, i32 iterations) {
 }
 
 i32 main(i32 argc, char *argv[]) {
-    const char *filename = "out.json";
-    i32 iterations = 1;
+    const char *filename = "";
 
     // Parse command line arguments
-    if (argc >= 2) {
-        filename = argv[1];
-    }
-    if (argc >= 3) {
-        iterations = atoi(argv[2]);
-        if (iterations <= 0) {
-            fprintf(stderr, "Error: Invalid number of iterations\n");
-            return 1;
-        }
+    assert(argc == 3, "main <file.json> <iterations>");
+    filename = argv[1];
+    i32 iterations = atoi(argv[2]);
+    if (iterations <= 0) {
+        fprintf(stderr, "Error: Invalid number of iterations\n");
+        return 1;
     }
 
     printf("JSON Parser Benchmark\n");

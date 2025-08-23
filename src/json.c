@@ -1,10 +1,11 @@
-#include <assert.h>
 #include <ctype.h>
+#include <immintrin.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "../include/assert.h"
 #include "../include/json.h"
 #include "../include/str.h"
 #include "../include/types.h"
@@ -46,7 +47,7 @@ JSON JSON_string(StrView value) {
 }
 
 JSON JSON_object(size len, Vec keys, Vec values) {
-    assert(len == keys.len && len == values.len);
+    assert(len == keys.len && len == values.len, "length mismatch");
     JSON json = {0};
     json.type = JSON_OBJECT;
     json.as.object.len = len;
@@ -105,7 +106,7 @@ i32 JSON_fprint(FILE *w, JSON json) {
         fprintf(w, "}");
         return 0;
     }
-    assert(false);
+    assert(false, "unknown json type %d", json.type);
 }
 
 typedef struct {
@@ -113,7 +114,10 @@ typedef struct {
     uptr pos;
 } parse_result;
 
-parse_result parse_any(Arena *a, byte *src, uptr pos);
+#define assert_parse(condition, msg, src, pos)                                 \
+    assert(condition, "%s (%c at %lu)", msg, src[pos], pos)
+
+parse_result parse_any(Arena *a, byte *src, uptr pos, uptr max_pos);
 
 parse_result parse_number(byte *src, uptr start_pos) {
     parse_result result = {0};
@@ -147,8 +151,8 @@ uptr absorb_whitespaces(byte *src, uptr start_pos) {
     return pos;
 }
 
-parse_result parse_array(Arena *a, byte *src, uptr start_pos) {
-    assert(src[start_pos] == '[');
+parse_result parse_array(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
+    assert_parse(src[start_pos] == '[', "invalid array start", src, start_pos);
     parse_result result = {0};
     result.pos = start_pos + 1;
     if (src[result.pos] == ']') {
@@ -158,7 +162,7 @@ parse_result parse_array(Arena *a, byte *src, uptr start_pos) {
     Vec items = Vec_new(a, JSON, 2);
     for (;;) {
         result.pos = absorb_whitespaces(src, result.pos);
-        parse_result item_result = parse_any(a, src, result.pos);
+        parse_result item_result = parse_any(a, src, result.pos, max_pos);
         Vec_push(a, &items, &item_result.value);
         result.pos = absorb_whitespaces(src, item_result.pos);
         if (src[result.pos] == ',') {
@@ -167,21 +171,39 @@ parse_result parse_array(Arena *a, byte *src, uptr start_pos) {
             break;
         }
     };
-    assert(src[result.pos] == ']');
+    assert_parse(src[result.pos] == ']', "invalid array end", src, result.pos);
     result.pos++;
     result.value = JSON_array(items);
     return result;
 }
 
-parse_result parse_string(Arena *a, byte *src, uptr start_pos) {
-    assert(src[start_pos] == '"');
+parse_result parse_string(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
+    assert_parse(src[start_pos] == '"', "invalid string start", src, start_pos);
     parse_result result = {0};
     result.pos = start_pos + 1;
 
+    // SIMD optimization: process 32 bytes at a time using AVX2
+    byte_32 quote_mask = _mm256_set1_epi8('"');
+
+    while (1) {
+        if (max_pos - result.pos < 32) break;
+        byte_32 chunk = _mm256_loadu_si256((byte_32 *)(src + result.pos));
+        byte_32 cmp = _mm256_cmpeq_epi8(chunk, quote_mask);
+        i32 mask = _mm256_movemask_epi8(cmp);
+
+        if (_mm_popcnt_u32(mask) > 0) {
+            result.pos += __builtin_ctz(mask);
+            break;
+        };
+        result.pos += 32;
+    }
+
+    // Fall back to original byte-by-byte processing for the remaining bytes
     while (src[result.pos] != '"' && src[result.pos - 1] != '\\') {
         result.pos++;
     }
-    assert(src[result.pos] == '"');
+
+    assert_parse(src[result.pos] == '"', "invalid string end", src, result.pos);
     result.value =
         JSON_string(Str_view(&src[start_pos + 1], result.pos - start_pos - 1));
     result.pos++;
@@ -189,8 +211,8 @@ parse_result parse_string(Arena *a, byte *src, uptr start_pos) {
     return result;
 }
 
-parse_result parse_object(Arena *a, byte *src, uptr start_pos) {
-    assert(src[start_pos] == '{');
+parse_result parse_object(Arena *a, byte *src, uptr start_pos, uptr max_pos) {
+    assert_parse(src[start_pos] == '{', "invalid object start", src, start_pos);
     parse_result result = {0};
     result.pos = absorb_whitespaces(src, start_pos + 1);
     size len = 0;
@@ -202,14 +224,15 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos) {
         return result;
     }
     for (;;) {
-        assert(src[result.pos] == '"');
-        parse_result key_result = parse_string(a, src, result.pos);
+        parse_result key_result = parse_string(a, src, result.pos, max_pos);
         result.pos = absorb_whitespaces(src, key_result.pos);
-        assert(src[result.pos] == ':');
+        assert_parse(src[result.pos] == ':', "invalid keyval delim", src,
+                     result.pos);
         result.pos = absorb_whitespaces(src, result.pos + 1);
-        parse_result value_result = parse_any(a, src, result.pos);
+        parse_result value_result = parse_any(a, src, result.pos, max_pos);
         len++;
-        assert(key_result.value.type == JSON_STRING);
+        assert(key_result.value.type == JSON_STRING,
+               "invalid json type for key: %d", key_result.value.type);
         Vec_push(a, &keys, &key_result.value.as.string);
         Vec_push(a, &values, &value_result.value);
         result.pos = absorb_whitespaces(src, value_result.pos);
@@ -218,18 +241,18 @@ parse_result parse_object(Arena *a, byte *src, uptr start_pos) {
         }
         result.pos = absorb_whitespaces(src, result.pos + 1);
     }
-    assert(src[result.pos] == '}');
+    assert_parse(src[result.pos] == '}', "invalid object end", src, result.pos);
     result.pos++;
     result.value = JSON_object(len, keys, values);
     return result;
 }
 
-parse_result parse_any(Arena *a, byte *src, uptr pos) {
+parse_result parse_any(Arena *a, byte *src, uptr pos, uptr max_pos) {
     pos = absorb_whitespaces(src, pos);
     if (isdigit(src[pos])) return parse_number(src, pos);
-    if (src[pos] == '[') return parse_array(a, src, pos);
-    if (src[pos] == '"') return parse_string(a, src, pos);
-    if (src[pos] == '{') return parse_object(a, src, pos);
+    if (src[pos] == '[') return parse_array(a, src, pos, max_pos);
+    if (src[pos] == '"') return parse_string(a, src, pos, max_pos);
+    if (src[pos] == '{') return parse_object(a, src, pos, max_pos);
     if (memcmp(src + pos, "true", 4) == 0) {
         parse_result result = {0};
         result.value = JSON_boolean(true);
@@ -248,10 +271,12 @@ parse_result parse_any(Arena *a, byte *src, uptr pos) {
         result.pos = pos + 4;
         return result;
     }
-    assert(false);
+    assert_parse(false, "unexpected input", src, pos);
 }
 
-JSON JSON_parse(Arena *a, byte *src) { return parse_any(a, src, 0).value; }
+JSON JSON_parse(Arena *a, byte *src, uptr len) {
+    return parse_any(a, src, 0, len).value;
+}
 
 JSON *JSONObject_get(JSONObject obj, Str key) {
     for (size i = 0; i < obj.len; i++) {
@@ -259,5 +284,5 @@ JSON *JSONObject_get(JSONObject obj, Str key) {
             return Vec_get(obj.values, JSON, i);
         }
     }
-    assert(false);
+    return 0;
 }

@@ -1,10 +1,12 @@
 #include "../include/json.h"
 #include "../include/testing.h"
 
+#define JSON_parse_raw(a, s) JSON_parse(a, s, lengthof(s));
+
 i32 test_json_integer() {
     Arena perm = Arena_new(128e3);
 
-    JSON json_int = JSON_parse(&perm, "123");
+    JSON json_int = JSON_parse_raw(&perm, "123");
 
     t_assert(json_int.as.integer == 123);
     t_assert_equal(Arena_get_used(perm), 0);
@@ -14,7 +16,7 @@ i32 test_json_integer() {
 i32 test_json_int_array() {
     Arena perm = Arena_new(128e3);
 
-    JSON json_int_array = JSON_parse(&perm, "[1,2,3]");
+    JSON json_int_array = JSON_parse_raw(&perm, "[1,2,3]");
 
     t_assert(json_int_array.type == JSON_ARRAY);
     t_assert_equal(json_int_array.as.array.len, 3);
@@ -37,7 +39,7 @@ i32 test_json_int_array() {
 i32 test_json_empty_array() {
     Arena perm = Arena_new(128e3);
 
-    JSON json_empty_array = JSON_parse(&perm, "[]");
+    JSON json_empty_array = JSON_parse_raw(&perm, "[]");
 
     t_assert(json_empty_array.as.array.len == 0);
     t_assert_equal(Arena_get_used(perm), 0); // TODO: weird
@@ -48,7 +50,7 @@ i32 test_json_empty_array() {
 i32 test_json_nested_array() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "[[1,\"abc\"]]");
+    JSON doc = JSON_parse_raw(&perm, "[[1,\"abc\"]]");
 
     JSON sub_array = *Vec_get(doc.as.array, JSON, 0);
     JSON val_1 = *Vec_get(sub_array.as.array, JSON, 0);
@@ -63,7 +65,7 @@ i32 test_json_nested_array() {
 i32 test_json_string() {
     Arena perm = Arena_new(128e3);
 
-    JSON js = JSON_parse(&perm, "\"abc\"");
+    JSON js = JSON_parse_raw(&perm, "\"abc\"");
 
     t_assert(Str_equals(StrView_copy(&perm, js.as.string), S("abc")));
     t_assert_equal(Arena_get_used(perm), 3);
@@ -74,7 +76,7 @@ i32 test_json_string() {
 i32 test_json_empty_object() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "{}");
+    JSON doc = JSON_parse_raw(&perm, "{}");
 
     t_assert_equal(doc.as.object.len, 0);
     t_assert_equal(Arena_get_used(perm), 224);
@@ -85,7 +87,7 @@ i32 test_json_empty_object() {
 i32 test_json_object() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "{\"key\": \"value\"}");
+    JSON doc = JSON_parse_raw(&perm, "{\"key\": \"value\"}");
 
     t_assert_equal(doc.as.object.len, 1);
     t_assert(Str_equals(*Vec_get(doc.as.object.keys, Str, 0), S("key")));
@@ -99,7 +101,7 @@ i32 test_json_object() {
 i32 test_json_boolean() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "{\"a\": true, \"b\": false}");
+    JSON doc = JSON_parse_raw(&perm, "{\"a\": true, \"b\": false}");
 
     JSON a = *JSONObject_get(doc.as.object, S("a"));
     t_assert(a.as.boolean == true);
@@ -113,7 +115,7 @@ i32 test_json_boolean() {
 i32 test_json_float() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "[1.2, 2.3]");
+    JSON doc = JSON_parse_raw(&perm, "[1.2, 2.3]");
     t_assert_equal(doc.as.array.len, 2);
     JSON first = *Vec_get(doc.as.array, JSON, 0);
     t_assert_fequal(first.as.floating, 1.2);
@@ -127,7 +129,7 @@ i32 test_json_float() {
 i32 test_json_null() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "[null]");
+    JSON doc = JSON_parse_raw(&perm, "[null]");
     t_assert_equal(doc.as.array.len, 1);
     JSON first = *Vec_get(doc.as.array, JSON, 0);
     t_assert(first.type == JSON_NULL);
@@ -139,7 +141,7 @@ i32 test_json_null() {
 i32 test_json_multiline() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(
+    JSON doc = JSON_parse_raw(
         &perm, "{\n"
                "    \"generated_at\": \"2025-07-22T10:36:30.974926\",\n"
                "    \"target_size_mb\": 1,\n"
@@ -157,7 +159,7 @@ i32 test_json_multiline() {
 i32 test_json_nested_object() {
     Arena perm = Arena_new(128e3);
 
-    JSON doc = JSON_parse(&perm, "{\"1\":{\"2\":{}}}");
+    JSON doc = JSON_parse_raw(&perm, "{\"1\":{\"2\":{}}}");
 
     JSON lvl_1 = *JSONObject_get(doc.as.object, S("1"));
     t_assert(lvl_1.type == JSON_OBJECT);
@@ -166,33 +168,44 @@ i32 test_json_nested_object() {
     return 0;
 }
 
+i32 test_json_array_in_object() {
+    Arena perm = Arena_new(128e3);
+    JSON doc = JSON_parse_raw(&perm, "{\"tags\": [\"TWvZi0\",\"pM0TPv9X\"]}");
+
+    JSON tags = *JSONObject_get(doc.as.object, S("tags"));
+    t_assert(tags.type == JSON_ARRAY);
+    t_assert_equal(tags.as.array.len, 2);
+
+    return 0;
+}
+
 i32 test_json_complex_multiline() {
     Arena perm = Arena_new(128e3);
-    JSON doc =
-        JSON_parse(&perm, "{\n"
-                          "    \"id\": 819228,\n"
-                          "    \"username\": \"rCrRv4PRnUNuAy\",\n"
-                          "    \"email\": \"xzbwrzj@zwod.com\",\n"
-                          "    \"first_name\": \"4WH7g7PsOEm5\",\n"
-                          "    \"last_name\": \"6ulndxUgjbIayl\",\n"
-                          "    \"age\": 30,\n"
-                          "    \"phone\": \"+1-529-712-3931\",\n"
-                          "    \"is_active\": false,\n"
-                          "    \"balance\": 9347.49,\n"
-                          "    \"tags\": [\n"
-                          "      \"TWvZi0\",\n"
-                          "      \"pM0TPv9X\"\n"
-                          "    ],\n"
-                          "    \"metadata\": {\n"
-                          "      \"last_login\": \"2024-06-13T21:22:32Z\",\n"
-                          "      \"login_count\": 245,\n"
-                          "      \"preferences\": {\n"
-                          "        \"theme\": \"auto\",\n"
-                          "        \"notifications\": true,\n"
-                          "        \"language\": \"en\"\n"
-                          "      }\n"
-                          "    }\n"
-                          "  }");
+    JSON doc = JSON_parse_raw(
+        &perm, "{\n"
+               "    \"id\": 819228,\n"
+               "    \"username\": \"rCrRv4PRnUNuAy\",\n"
+               "    \"email\": \"xzbwrzj@zwod.com\",\n"
+               "    \"first_name\": \"4WH7g7PsOEm5\",\n"
+               "    \"last_name\": \"6ulndxUgjbIayl\",\n"
+               "    \"age\": 30,\n"
+               "    \"phone\": \"+1-529-712-3931\",\n"
+               "    \"is_active\": false,\n"
+               "    \"balance\": 9347.49,\n"
+               "    \"tags\": [\n"
+               "      \"TWvZi0\",\n"
+               "      \"pM0TPv9X\"\n"
+               "    ],\n"
+               "    \"metadata\": {\n"
+               "      \"last_login\": \"2024-06-13T21:22:32Z\",\n"
+               "      \"login_count\": 245,\n"
+               "      \"preferences\": {\n"
+               "        \"theme\": \"auto\",\n"
+               "        \"notifications\": true,\n"
+               "        \"language\": \"en\"\n"
+               "      }\n"
+               "    }\n"
+               "  }");
 
     JSON id = *JSONObject_get(doc.as.object, S("id"));
     t_assert(id.as.integer == 819228);

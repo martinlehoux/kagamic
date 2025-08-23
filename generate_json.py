@@ -174,19 +174,14 @@ def generate_large_json(target_size_mb=100, output_file="benchmark.json"):
     print(f"  Server metrics: {len(data['analytics']['server_metrics']):,}")
 
 def main():
-    if len(sys.argv) > 1:
-        try:
-            target_size = int(sys.argv[1])
-        except ValueError:
-            print("Usage: python3 generate_json.py [size_in_mb] [output_file]")
-            sys.exit(1)
-    else:
-        target_size = 100
+    assert len(sys.argv) == 2
+    try:
+        target_size = int(sys.argv[1])
+    except ValueError:
+        print("Usage: python3 generate_json.py [size_in_mb] [output_file]")
+        sys.exit(1)
 
-    if len(sys.argv) > 2:
-        output_file = sys.argv[2]
-    else:
-        output_file = f"benchmark_{target_size}mb.json"
+    output_file = f"{target_size}MB.json"
 
     try:
         generate_large_json(target_size, output_file)

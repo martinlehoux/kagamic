@@ -30,5 +30,5 @@ typedef struct {
 } JSON;
 JSON *JSONObject_get(JSONObject obj, Str key);
 i32 JSON_fprint(FILE *w, JSON json);
-JSON JSON_parse(Arena *a, byte *src);
+JSON JSON_parse(Arena *a, byte *src, uptr len);
 JSON JSON_Int(Arena *a, i32 val);
