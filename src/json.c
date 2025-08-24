@@ -74,7 +74,7 @@ i32 JSON_fprint(FILE *w, JSON json) {
     switch (json.type) {
     case JSON_STRING:
         fprintf(w, "\"");
-        StrView_fprint(w, json.as.string);
+        Str_fprint(w, json.as.string);
         return fprintf(w, "\"");
     case JSON_INTEGER:
         return fprintf(w, "%d", json.as.integer);
@@ -98,7 +98,7 @@ i32 JSON_fprint(FILE *w, JSON json) {
         for (size i = 0; i < json.as.object.len; i++) {
             StrView key = *Vec_get(json.as.object.keys, StrView, i);
             fprintf(w, "\"");
-            StrView_fprint(w, key);
+            Str_fprint(w, key);
             fprintf(w, "\": ");
             JSON value = *Vec_get(json.as.object.values, JSON, i);
             JSON_fprint(w, value);
@@ -281,9 +281,8 @@ JSON JSON_parse(Arena *a, byte *src, uptr len) {
 
 JSON *JSONObject_get(JSONObject obj, Str key) {
     for (size i = 0; i < obj.len; i++) {
-        if (Str_equals(*Vec_get(obj.keys, Str, i), key)) {
-            return Vec_get(obj.values, JSON, i);
-        }
+        StrView tmp_key = *Vec_get(obj.keys, StrView, i);
+        if (Str_equals(tmp_key, key)) return Vec_get(obj.values, JSON, i);
     }
     return 0;
 }

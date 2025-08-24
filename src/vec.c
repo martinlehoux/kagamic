@@ -25,5 +25,3 @@ void Vec_push(Arena *a, Vec *v, void *data) {
     memcpy(v->data + v->len * v->tsize, data, v->tsize);
     v->len++;
 }
-
-void *_Vec_get(Vec v, size pos) { return v.data + v.tsize * pos; }
