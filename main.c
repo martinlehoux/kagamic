@@ -7,42 +7,9 @@
 #include "include/assert.h"
 #include "include/json.h"
 #include "include/memory.h"
+#include "include/testing.h"
 #include "include/types.h"
 #include "include/vec.h"
-
-// Load entire file into memory
-byte *load_file(const char *filename, size *file_size) {
-    FILE *file = fopen(filename, "rb");
-    if (!file) {
-        fprintf(stderr, "Error: Could not open file '%s'\n", filename);
-        return NULL;
-    }
-
-    // Get file size
-    fseek(file, 0, SEEK_END);
-    *file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    // Allocate buffer and read file
-    byte *buffer = malloc(*file_size + 1);
-    if (!buffer) {
-        fprintf(stderr, "Error: Could not allocate memory for file\n");
-        fclose(file);
-        return NULL;
-    }
-
-    size bytes_read = fread(buffer, 1, *file_size, file);
-    if (bytes_read != *file_size) {
-        fprintf(stderr, "Error: Could not read entire file\n");
-        free(buffer);
-        fclose(file);
-        return NULL;
-    }
-
-    buffer[*file_size] = '\0'; // Null terminate
-    fclose(file);
-    return buffer;
-}
 
 // Get high resolution time in nanoseconds
 double get_time_ns(void) {
@@ -52,33 +19,32 @@ double get_time_ns(void) {
 }
 
 void run_benchmark(const char *filename, i32 iterations) {
+    Arena perm = Arena_new(1e9);
     printf("Loading file: %s\n", filename);
 
-    size file_size;
-    byte *content = load_file(filename, &file_size);
-    if (!content) return;
+    MemoryFile file = load_file(&perm, filename);
 
-    printf("File size: %zu bytes\n", file_size);
+    printf("File size: %zu bytes\n", file.size);
     printf("Running %d iterations...\n\n", iterations);
 
     // Statistics tracking
     f32 timings[iterations];
     f32 timing_avg = 0.0;
 
-    Arena arena = Arena_new(8e9);
+    Arena tmp = Arena_new(8e9);
 
     printf("Benchmarking...\n");
     for (i32 i = 0; i < iterations; i++) {
-        Arena_reset(&arena);
-        size used = Arena_get_used(arena);
+        Arena_reset(&tmp);
+        size used = Arena_get_used(tmp);
         double start_time = get_time_ns();
-        JSON_parse(&arena, content, file_size);
+        JSON_parse(&tmp, file.content, file.size);
         double end_time = get_time_ns();
 
         timings[i] = end_time - start_time;
         timing_avg += timings[i];
 
-        size new_used = Arena_get_used(arena);
+        size new_used = Arena_get_used(tmp);
         size allocated = new_used - used;
         printf("Iteration %d: %3.f ms\t%td MB\n", i + 1, timings[i] / 1000000,
                allocated / 1024 / 1024);
@@ -97,7 +63,7 @@ void run_benchmark(const char *filename, i32 iterations) {
     timing_var /= iterations;
     f32 timing_stddev = sqrt(timing_var);
     double avg_throughput_mb_s =
-        (file_size / (1024.0 * 1024.0)) / (timing_avg / 1000000000.0);
+        (file.size / (1024.0 * 1024.0)) / (timing_avg / 1000000000.0);
 
     printf("\n=== Benchmark Results ===\n");
     printf("%3.f ms ± %3.f ms per loop (mean ± std. dev. of %d runs, 1 loop "

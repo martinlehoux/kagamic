@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../include/memory.h"
+
+typedef struct {
+    size size;
+    byte *content;
+} MemoryFile;
+MemoryFile load_file(Arena *a, const char *filename);
+
 #define t_assert_equal(a, b)                                                   \
     if (!(a == b)) {                                                           \
         fprintf(stderr,                                                        \

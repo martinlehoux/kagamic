@@ -7,8 +7,9 @@
 - web server, Json parsing, struct codegen
 - assert not in release
 - python based generate
-- test helpers to load json files
-- add test with backspaces weird
+- escape chars
+- unicode
+- fail on any control character in string
 
 ## Benchmarks
 

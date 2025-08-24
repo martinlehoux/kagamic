@@ -186,22 +186,29 @@ parse_result parse_string(byte *src, uptr start_pos, uptr max_pos) {
     result.pos = start_pos + 1;
 
     // SIMD optimization: process 32 bytes at a time using AVX2
-    bytex32 quote_mask = _mm256_set1_epi8('"');
+    bytex32 quote_bytes = _mm256_set1_epi8('"');
 
     for (; result.pos + 32 <= max_pos; result.pos += 32) {
         bytex32 chunk = _mm256_loadu_si256((bytex32 *)(src + result.pos));
-        bytex32 cmp = _mm256_cmpeq_epi8(chunk, quote_mask);
-        i32 mask = _mm256_movemask_epi8(cmp);
+        i32 quote_mask =
+            _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, quote_bytes));
 
-        if (mask != 0) {
-            result.pos += stdc_trailing_zeros_ui(mask);
-            if (src[result.pos - 1] != '\\') break;
+        if (quote_mask != 0) {
+            result.pos += stdc_trailing_zeros_ui(quote_mask);
+            break;
         };
     }
 
     // Fall back to original byte-by-byte processing for the remaining bytes
-    while (src[result.pos] != '"' && src[result.pos - 1] != '\\') {
-        result.pos++;
+    for (; result.pos < max_pos; result.pos++) {
+        if (src[result.pos] == '"') {
+            uptr backslash_count = 0;
+            while (backslash_count < result.pos &&
+                   src[result.pos - backslash_count - 1] == '\\') {
+                backslash_count++;
+            }
+            if (!(backslash_count & 1)) break;
+        }
     }
 
     assert_parse(src[result.pos] == '"', "invalid string end", src, result.pos);

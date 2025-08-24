@@ -5,5 +5,5 @@ Release/
 Profile/
 
 test.c
-*.json
+*MB.json
 callgrind.out

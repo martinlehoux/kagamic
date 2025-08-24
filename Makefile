@@ -24,5 +24,5 @@ format:
 	clang-format -i src/*.c include/*.h tests/*.c *.c
 
 check:
-	make test
 	clang-format -i --dry-run src/*.c include/*.h tests/*.c *.c --fail-on-incomplete-format
+	make test

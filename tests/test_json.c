@@ -151,13 +151,9 @@ i32 test_json_long_spaces() {
 
 i32 test_json_multiline() {
     Arena perm = Arena_new(128e3);
-
-    JSON doc = JSON_parse_raw(
-        &perm, "{\n"
-               "    \"generated_at\": \"2025-07-22T10:36:30.974926\",\n"
-               "    \"target_size_mb\": 1,\n"
-               "    \"generator_version\": \"1.0\"\n"
-               "}");
+    MemoryFile file =
+        load_file(&perm, "tests/test_json/test_json_multiline.json");
+    JSON doc = JSON_parse(&perm, file.content, file.size);
     JSON target_size_mb = *JSONObject_get(doc.as.object, S("target_size_mb"));
     t_assert_equal(target_size_mb.as.integer, 1);
     JSON generated_at = *JSONObject_get(doc.as.object, S("generated_at"));
@@ -191,31 +187,9 @@ i32 test_json_array_in_object() {
 
 i32 test_json_complex_multiline() {
     Arena perm = Arena_new(128e3);
-    JSON doc = JSON_parse_raw(
-        &perm, "{\n"
-               "    \"id\": 819228,\n"
-               "    \"username\": \"rCrRv4PRnUNuAy\",\n"
-               "    \"email\": \"xzbwrzj@zwod.com\",\n"
-               "    \"first_name\": \"4WH7g7PsOEm5\",\n"
-               "    \"last_name\": \"6ulndxUgjbIayl\",\n"
-               "    \"age\": 30,\n"
-               "    \"phone\": \"+1-529-712-3931\",\n"
-               "    \"is_active\": false,\n"
-               "    \"balance\": 9347.49,\n"
-               "    \"tags\": [\n"
-               "      \"TWvZi0\",\n"
-               "      \"pM0TPv9X\"\n"
-               "    ],\n"
-               "    \"metadata\": {\n"
-               "      \"last_login\": \"2024-06-13T21:22:32Z\",\n"
-               "      \"login_count\": 245,\n"
-               "      \"preferences\": {\n"
-               "        \"theme\": \"auto\",\n"
-               "        \"notifications\": true,\n"
-               "        \"language\": \"en\"\n"
-               "      }\n"
-               "    }\n"
-               "  }");
+    MemoryFile file =
+        load_file(&perm, "tests/test_json/test_json_complex_multiline.json");
+    JSON doc = JSON_parse(&perm, file.content, file.size);
 
     JSON id = *JSONObject_get(doc.as.object, S("id"));
     t_assert_equal(id.as.integer, 819228);
@@ -236,5 +210,15 @@ i32 test_negative_numbers() {
     JSON floating = *Vec_get(doc.as.array, JSON, 1);
     t_assert_fequal(floating.as.floating, -2.5);
 
+    return 0;
+}
+
+i32 test_json_backspaces() {
+    Arena perm = Arena_new(128e3);
+    MemoryFile file =
+        load_file(&perm, "tests/test_json/test_json_backspaces.json");
+    JSON doc = JSON_parse(&perm, file.content, file.size);
+
+    t_assert_strequal(doc.as.string, S("weird text\\"));
     return 0;
 }
