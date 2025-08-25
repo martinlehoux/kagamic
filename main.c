@@ -73,8 +73,7 @@ void run_benchmark(const char *filename, i32 iterations) {
 }
 
 i32 main(i32 argc, char *argv[]) {
-    const char *filename = "";
-
+    char *filename = "";
     // Parse command line arguments
     assert(argc == 3, "main <file.json> <iterations>");
     filename = argv[1];

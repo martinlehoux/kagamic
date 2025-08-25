@@ -25,4 +25,6 @@ format:
 
 check:
 	clang-format -i --dry-run src/*.c include/*.h tests/*.c *.c --fail-on-incomplete-format
+	ruff check
+	ruff format --check
 	make test
