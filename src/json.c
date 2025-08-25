@@ -1,9 +1,11 @@
 #include <ctype.h>
 #include <immintrin.h>
+#include <math.h>
 #include <stdbit.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../include/assert.h"
@@ -122,27 +124,12 @@ parse_result parse_any(Arena *a, byte *src, uptr pos, uptr max_pos);
 
 parse_result parse_number(byte *src, uptr start_pos) {
     parse_result result = {0};
-    bool is_neg = src[start_pos] == '-';
-    result.pos = start_pos + is_neg;
-    i32 integer = 0;
-    while (isdigit(src[result.pos])) {
-        integer = integer * 10 + (src[result.pos] - '0');
-        result.pos++;
-    }
-    if (src[result.pos] != '.') {
-        result.value = JSON_integer(is_neg ? -integer : integer);
-        return result;
-    }
-    result.pos++;
-    f32 fractional_part = 0.0;
-    f32 decimal_place = 0.1;
-    while (isdigit(src[result.pos])) {
-        fractional_part += (src[result.pos] - '0') * decimal_place;
-        decimal_place *= 0.1;
-        result.pos++;
-    }
-    result.value = JSON_float(is_neg ? -(f32)integer - fractional_part
-                                     : (f32)integer + fractional_part);
+    byte *end;
+    f32 number = strtod(src + start_pos, &end);
+    assert_parse(end != src, "invalide number", src, result.pos);
+    result.pos += end - src;
+    result.value =
+        floor(number) == number ? JSON_integer(number) : JSON_float(number);
     return result;
 }
 
