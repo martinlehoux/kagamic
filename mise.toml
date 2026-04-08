@@ -27,6 +27,21 @@ run = [
     "kcachegrind callgrind.out"
 ]
 
+[tasks.generate-bench]
+run = [
+    "uv run python generate_json.py 1",
+    "uv run python generate_benchmarks.py"
+]
+
+[tasks.bench]
+depends = ["generate-bench"]
+run = [
+    "mkdir -p Release",
+    "cmake -DCMAKE_BUILD_TYPE=Release -B Release",
+    "cmake --build Release",
+    "./Release/bench"
+]
+
 [tasks.test]
 depends = ["debug"]
 run = "./Debug/test"
