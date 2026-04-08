@@ -219,6 +219,6 @@ i32 test_json_backspaces() {
         load_file(&perm, "src/json/test_json/test_json_backspaces.json");
     JSON doc = JSON_parse(&perm, file.content, file.size);
 
-    t_assert_strequal(doc.as.string, S("weird text\\"));
+    t_assert_strequal(doc.as.string, S("weird text\\\\yo"));
     return 0;
 }

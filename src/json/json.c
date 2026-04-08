@@ -182,7 +182,13 @@ parse_result parse_string(byte *src, uptr start_pos, uptr max_pos) {
 
         if (quote_mask != 0) {
             result.pos += stdc_trailing_zeros_ui(quote_mask);
-            break;
+            uptr backslash_count = 0;
+            while (backslash_count < result.pos &&
+                   src[result.pos - backslash_count - 1] == '\\') {
+                backslash_count++;
+            }
+            if (!(backslash_count & 1)) break;
+            result.pos++;
         };
     }
 
