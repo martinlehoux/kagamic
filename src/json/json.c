@@ -9,9 +9,9 @@
 #include <string.h>
 
 #include "../std/assert.h"
-#include "json.h"
 #include "../std/str.h"
 #include "../std/types.h"
+#include "json.h"
 
 JSONObject *JSONObject_new(Arena *a) {
     JSONObject *object = new(a, JSONObject, 1);

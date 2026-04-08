@@ -40,5 +40,6 @@ run = [
     "clang-format --dry-run src/**/*.c src/**/*.h *.c --fail-on-incomplete-format",
     "ruff check",
     "ruff format --check",
+    "uv run ty check",
     "mise run test"
 ]

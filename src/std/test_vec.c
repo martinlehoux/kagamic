@@ -34,7 +34,8 @@ i32 test_vec_push() {
     Vec v = Vec_new(&perm, i32, 4);
 
     i32 vals[] = {10, 20, 30};
-    for (i32 i = 0; i < 3; i++) Vec_push(&perm, &v, &vals[i]);
+    for (i32 i = 0; i < 3; i++)
+        Vec_push(&perm, &v, &vals[i]);
 
     t_assert_equal(v.len, 3);
     t_assert_equal(*Vec_get(v, i32, 0), 10);
@@ -49,7 +50,8 @@ i32 test_vec_grow() {
     Arena perm = Arena_new(128e3);
     Vec v = Vec_new(&perm, i32, 2);
 
-    for (i32 i = 0; i < 8; i++) Vec_push(&perm, &v, &i);
+    for (i32 i = 0; i < 8; i++)
+        Vec_push(&perm, &v, &i);
 
     t_assert_equal(v.len, 8);
     t_assert_equal(Arena_get_used(perm), sizeof(i32) * (2 + 4 + 8));

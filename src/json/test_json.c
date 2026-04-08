@@ -1,5 +1,5 @@
-#include "json.h"
 #include "../std/testing.h"
+#include "json.h"
 
 #define JSON_parse_raw(a, s) JSON_parse(a, s, lengthof(s));
 

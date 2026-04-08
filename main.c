@@ -4,8 +4,8 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "src/std/assert.h"
 #include "src/json/json.h"
+#include "src/std/assert.h"
 #include "src/std/memory.h"
 #include "src/std/testing.h"
 #include "src/std/types.h"

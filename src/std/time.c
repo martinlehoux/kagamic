@@ -6,13 +6,12 @@
 
 Time Time_get() {
     struct timespec system_time;
-    assert(clock_gettime(CLOCK_MONOTONIC, &system_time) == 0, "clock_gettime failed");
+    assert(clock_gettime(CLOCK_MONOTONIC, &system_time) == 0,
+           "clock_gettime failed");
     return (Time){system_time.tv_sec, system_time.tv_nsec};
 }
 
-f32 Time_ms(Time time) {
-    return time.s * 1e3 + time.ns / 1e6;
-}
+f32 Time_ms(Time time) { return time.s * 1e3 + time.ns / 1e6; }
 
 Duration Time_diff(Time end, Time start) {
     Duration d;
@@ -25,9 +24,7 @@ Duration Time_diff(Time end, Time start) {
     return d;
 }
 
-f32 Duration_ms(Duration d) {
-    return d.s * 1e3 + d.ns / 1e6;
-}
+f32 Duration_ms(Duration d) { return d.s * 1e3 + d.ns / 1e6; }
 
 Duration Duration_from_ms(f32 ms) {
     Duration d;
