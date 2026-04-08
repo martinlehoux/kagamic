@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "../include/assert.h"
-#include "../include/types.h"
-#include "../include/vec.h"
+#include "assert.h"
+#include "types.h"
+#include "vec.h"
 
 Vec _Vec_new(Arena *a, size tsize, size cap, size align) {
     assert(cap > 0, "negative cap");

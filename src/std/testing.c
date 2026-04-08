@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include "../include/assert.h"
-#include "../include/memory.h"
-#include "../include/str.h"
-#include "../include/testing.h"
-#include "../include/types.h"
+#include "assert.h"
+#include "memory.h"
+#include "str.h"
+#include "testing.h"
+#include "types.h"
 
 MemoryFile load_file(Arena *a, const char *filename) {
     FILE *file = fopen(filename, "rb");

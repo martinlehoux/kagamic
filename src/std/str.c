@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/memory.h"
-#include "../include/str.h"
+#include "memory.h"
+#include "str.h"
 
 u64 Str_hash64(Str s) {
     u64 h = 0x100;

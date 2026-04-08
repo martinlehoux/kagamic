@@ -1,8 +1,8 @@
 #include <time.h>
 
-#include "../include/assert.h"
-#include "../include/time.h"
-#include "../include/types.h"
+#include "assert.h"
+#include "time.h"
+#include "types.h"
 
 Time Time_get() {
     struct timespec system_time;

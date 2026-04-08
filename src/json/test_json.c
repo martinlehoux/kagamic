@@ -1,5 +1,5 @@
-#include "../include/json.h"
-#include "../include/testing.h"
+#include "json.h"
+#include "../std/testing.h"
 
 #define JSON_parse_raw(a, s) JSON_parse(a, s, lengthof(s));
 
@@ -152,7 +152,7 @@ i32 test_json_long_spaces() {
 i32 test_json_multiline() {
     Arena perm = Arena_new(128e3);
     MemoryFile file =
-        load_file(&perm, "tests/test_json/test_json_multiline.json");
+        load_file(&perm, "src/json/test_json/test_json_multiline.json");
     JSON doc = JSON_parse(&perm, file.content, file.size);
     JSON target_size_mb = *JSONObject_get(doc.as.object, S("target_size_mb"));
     t_assert_equal(target_size_mb.as.integer, 1);
@@ -188,7 +188,7 @@ i32 test_json_array_in_object() {
 i32 test_json_complex_multiline() {
     Arena perm = Arena_new(128e3);
     MemoryFile file =
-        load_file(&perm, "tests/test_json/test_json_complex_multiline.json");
+        load_file(&perm, "src/json/test_json/test_json_complex_multiline.json");
     JSON doc = JSON_parse(&perm, file.content, file.size);
 
     JSON id = *JSONObject_get(doc.as.object, S("id"));
@@ -216,7 +216,7 @@ i32 test_negative_numbers() {
 i32 test_json_backspaces() {
     Arena perm = Arena_new(128e3);
     MemoryFile file =
-        load_file(&perm, "tests/test_json/test_json_backspaces.json");
+        load_file(&perm, "src/json/test_json/test_json_backspaces.json");
     JSON doc = JSON_parse(&perm, file.content, file.size);
 
     t_assert_strequal(doc.as.string, S("weird text\\"));

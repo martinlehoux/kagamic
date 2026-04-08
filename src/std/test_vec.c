@@ -1,5 +1,5 @@
-#include "../include/testing.h"
-#include "../include/vec.h"
+#include "testing.h"
+#include "vec.h"
 
 typedef struct {
     i32 x;

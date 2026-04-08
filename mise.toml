@@ -32,12 +32,12 @@ depends = ["debug"]
 run = "./Debug/test"
 
 [tasks.format]
-run = "clang-format -i src/*.c include/*.h tests/*.c *.c"
+run = "clang-format -i src/**/*.c src/**/*.h *.c"
 
 [tasks.check]
 depends = ["debug"]
 run = [
-    "clang-format --dry-run src/*.c include/*.h tests/*.c *.c --fail-on-incomplete-format",
+    "clang-format --dry-run src/**/*.c src/**/*.h *.c --fail-on-incomplete-format",
     "ruff check",
     "ruff format --check",
     "mise run test"

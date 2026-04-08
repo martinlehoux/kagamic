@@ -1,5 +1,5 @@
 echo "" > test.c;
-set fs (ls tests/test_*.c);
+set fs (ls src/**/test_*.c);
 for f in $fs;
     echo "#include \"$f\"" >> test.c;
 end;

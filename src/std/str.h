@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "../include/memory.h"
-#include "../include/types.h"
+#include "memory.h"
+#include "types.h"
 
 typedef struct {
     byte *data;

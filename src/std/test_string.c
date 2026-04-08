@@ -1,6 +1,6 @@
-#include "../include/string.h"
-#include "../include/testing.h"
-#include "../include/types.h"
+#include "str.h"
+#include "testing.h"
+#include "types.h"
 #include <stdio.h>
 
 i32 test_string_literal_equality() {

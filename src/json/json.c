@@ -8,10 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/assert.h"
-#include "../include/json.h"
-#include "../include/str.h"
-#include "../include/types.h"
+#include "../std/assert.h"
+#include "json.h"
+#include "../std/str.h"
+#include "../std/types.h"
 
 JSONObject *JSONObject_new(Arena *a) {
     JSONObject *object = new(a, JSONObject, 1);

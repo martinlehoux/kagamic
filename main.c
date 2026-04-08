@@ -4,12 +4,12 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "include/assert.h"
-#include "include/json.h"
-#include "include/memory.h"
-#include "include/testing.h"
-#include "include/types.h"
-#include "include/vec.h"
+#include "src/std/assert.h"
+#include "src/json/json.h"
+#include "src/std/memory.h"
+#include "src/std/testing.h"
+#include "src/std/types.h"
+#include "src/std/vec.h"
 
 // Get high resolution time in nanoseconds
 double get_time_ns(void) {

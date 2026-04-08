@@ -2,8 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../include/memory.h"
-#include "../include/types.h"
+#include "memory.h"
+#include "types.h"
 
 typedef struct {
     void *data;

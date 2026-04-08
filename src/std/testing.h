@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/memory.h"
+#include "memory.h"
 
 typedef struct {
     size size;

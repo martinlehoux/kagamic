@@ -1,7 +1,7 @@
 #pragma once
-#include "../include/memory.h"
-#include "../include/str.h"
-#include "../include/vec.h"
+#include "../std/memory.h"
+#include "../std/str.h"
+#include "../std/vec.h"
 
 typedef struct {
     Vec keys;   // Vec<Str>

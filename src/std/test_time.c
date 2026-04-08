@@ -1,6 +1,6 @@
-#include "../include/testing.h"
-#include "../include/time.h"
-#include "../include/types.h"
+#include "testing.h"
+#include "time.h"
+#include "types.h"
 
 i32 test_time_diff() {
     Time start = Time_get();
