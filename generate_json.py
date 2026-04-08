@@ -185,6 +185,7 @@ def generate_large_json(target_size_mb: int, output_file: str):
     print(f"  Page views: {len(data['analytics']['page_views']):,}")
     print(f"  Server metrics: {len(data['analytics']['server_metrics']):,}")
 
+
 def generate_descriptive(target_size_mb: int, output_file: str):
     target_size_bytes = target_size_mb * 1024 * 1024
     data = []
@@ -205,9 +206,7 @@ def generate_descriptive(target_size_mb: int, output_file: str):
         # Estimate current size (approximate: 40+400 chars per object + overhead)
         current_size = len(data) * (40 + 400 + 30)
 
-        if (
-            current_size % (10 * 1024 * 1024) < batch_size * (40 + 400)
-        ):
+        if current_size % (10 * 1024 * 1024) < batch_size * (40 + 400):
             print(f"Generated approximately {current_size / (1024 * 1024):.1f}MB...")
 
     print(f"Writing to {output_file}...")
@@ -221,6 +220,7 @@ def generate_descriptive(target_size_mb: int, output_file: str):
     print(f"  Target size: {target_size_mb}MB")
     print(f"  Actual size: {actual_size_mb:.1f}MB ({actual_size:,} bytes)")
     print(f"  Objects: {len(data):,}")
+
 
 def main():
     assert len(sys.argv) == 2

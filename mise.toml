@@ -1,0 +1,44 @@
+[tasks.generate]
+run = "fish generate.fish"
+
+[tasks.debug]
+depends = ["generate"]
+run = [
+    "mkdir -p Debug",
+    "cmake -DCMAKE_BUILD_TYPE=Debug -B Debug",
+    "cmake --build Debug"
+]
+
+[tasks.release]
+depends = ["generate"]
+run = [
+    "mkdir -p Release",
+    "cmake -DCMAKE_BUILD_TYPE=Release -B Release",
+    "cmake --build Release"
+]
+
+[tasks.profile]
+depends = ["generate"]
+run = [
+    "mkdir -p Profile",
+    "cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B Profile",
+    "cmake --build Profile",
+    "valgrind --tool=callgrind --dump-instr=yes --callgrind-out-file=callgrind.out ./Profile/main 100MB.json 1",
+    "kcachegrind callgrind.out"
+]
+
+[tasks.test]
+depends = ["debug"]
+run = "./Debug/test"
+
+[tasks.format]
+run = "clang-format -i src/*.c include/*.h tests/*.c *.c"
+
+[tasks.check]
+depends = ["debug"]
+run = [
+    "clang-format --dry-run src/*.c include/*.h tests/*.c *.c --fail-on-incomplete-format",
+    "ruff check",
+    "ruff format --check",
+    "mise run test"
+]
