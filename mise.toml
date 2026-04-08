@@ -1,5 +1,5 @@
 [tasks.generate]
-run = "fish generate.fish"
+run = "uv run python generate_tests.py"
 
 [tasks.debug]
 depends = ["generate"]
