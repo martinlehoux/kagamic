@@ -6,11 +6,13 @@
 - `valgrind --leak-check=full ./your_program`
 - web server, Json parsing, struct codegen
 - assert not in release
-- python based generate
-- escape chars
 - unicode
-- fail on any control character in string
 - benchmark kind of tests
+
+**JSON**
+- fail on any control character in string
+- escape chars
+
 
 ```c
 SDL_GetError();
