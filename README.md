@@ -12,7 +12,8 @@
 **JSON**
 - fail on any control character in string
 - escape chars
-
+- linkedlist vs vec +1
+- generated datastructures
 
 ```c
 SDL_GetError();

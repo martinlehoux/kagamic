@@ -1,7 +1,6 @@
 #include "str.h"
 #include "testing.h"
 #include "types.h"
-#include <stdio.h>
 
 i32 test_string_literal_equality() {
     t_assert_strequal(S("Bonjour"), S("Bonjour"));
